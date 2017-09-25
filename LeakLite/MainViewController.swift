@@ -19,7 +19,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     var stringAll=""
     @IBOutlet weak var lbltimer: UILabel!
     
-    
+   
     @IBOutlet weak var lblFlowReading: UILabel!
     
     @IBOutlet weak var lblIntPresReading: UILabel!
@@ -36,7 +36,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     @IBOutlet weak var lblExPresRange: UILabel!
     
     @IBOutlet weak var lblStatus: UILabel!
-    
+ 
     
     let BLEService = "49535343-FE7D-4AE5-8FA9-9FAFD205E455"//"DFB0"
     let BLECharacteristic = "49535343-8841-43F4-A8D4-ECBE34729BB3"//DFB1"
@@ -49,7 +49,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         super.viewDidLoad()
         manager = CBCentralManager(delegate: self, queue: nil);
         customiseNavigationBar()
-        timer = Timer.scheduledTimer(timeInterval: 0.25, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
     }
   //////////////////////////////////////////////////
     //Send ount command
@@ -216,7 +216,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                     stringAll=stringAll+stringValue
                     rxState=GlobalConstants.RX_DONE
                     recievedMessageText.text = stringAll
-          //          ParseMessage(Message: stringAll)
+                    ParseMessage(Message: stringAll)
                 }
                 else
                 {
@@ -237,19 +237,29 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////
-/*    func ParseMessage(Message:String)
+    func ParseMessage(Message:String)
     {
         var flow, press, extpres, temp, statusHex :String
        //     flow = split(Message) { $0==" "}
-        var datamessage = Message.components(separatedBy: GlobalConstants.SQCOMMD)
-        var data=datamessage[1].components(separatedBy: ";")
-        temp=data[0]
-        press=data[1]
-        flow=data[2]
-        extpres = data[3]
-        statusHex = data[4]
-    
-    }*/
+        if Message.range(of: GlobalConstants.SQCOMMD) != nil
+        {
+            var datamessage = Message.components(separatedBy: GlobalConstants.SQCOMMD)
+            var data=datamessage[1].components(separatedBy: ";")
+            temp=data[0]
+            press=data[1]
+            flow=data[2]
+            extpres = data[3]
+            statusHex = data[4]
+            let start = flow.index(flow.startIndex, offsetBy: 5)
+            
+            lblFlowReading.text = flow.substring(to: start)
+            lblIntPresReading.text=press.substring(to: start)
+            lblExtPresReading.text=extpres.substring(to: start)
+            lblTempReading.text=temp.substring(to: start)
+            
+        }
+    }
     ////////////////////////////////////////////////////////////////////////////////////////
+
 }
 
