@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "MainViewController.peripheral(_:didDiscoverServices:):MainViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "service.uuid.uuidString ">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "MainViewController.peripheral(_:didUpdateValueFor:error:):MainViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "characteristic.uuid.uuidString">
+            </PersistentString>
+            <PersistentString
+               value = "characteristic.value">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "MainViewController.sendButtonPressed(_:):MainViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "mainCharacteristic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "MainViewController.peripheral(_:didDiscoverCharacteristicsFor:error:):MainViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "service.uuid.uuidString">
+            </PersistentString>
+            <PersistentString
+               value = "characteristic.uuid.uuidString">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
