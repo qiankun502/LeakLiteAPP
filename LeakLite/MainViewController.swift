@@ -18,8 +18,27 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     var rxState = 0
     var stringAll=""
     @IBOutlet weak var lbltimer: UILabel!
-    let BLEService = "49535343-FE7D-4AE5-8FA9-9FAFD205E455"//"DFB0"
     
+    
+    @IBOutlet weak var lblFlowReading: UILabel!
+    
+    @IBOutlet weak var lblIntPresReading: UILabel!
+    @IBOutlet weak var lblExtPresReading: UILabel!
+    @IBOutlet weak var lblTempReading: UILabel!
+    
+    @IBOutlet weak var lblFlowUnit: UILabel!
+    @IBOutlet weak var lblPresUnit: UILabel!
+    @IBOutlet weak var lblExtPresUnit: UILabel!
+    @IBOutlet weak var lblTemperatureUnit: UILabel!
+
+    @IBOutlet weak var lblFlowRange: UILabel!
+    @IBOutlet weak var lblPresRange: UILabel!
+    @IBOutlet weak var lblExPresRange: UILabel!
+    
+    @IBOutlet weak var lblStatus: UILabel!
+    
+    
+    let BLEService = "49535343-FE7D-4AE5-8FA9-9FAFD205E455"//"DFB0"
     let BLECharacteristic = "49535343-8841-43F4-A8D4-ECBE34729BB3"//DFB1"
      let BLECharacteristicRec = "49535343-1E4D-4BD9-BA61-23C647249616"
      var timer = Timer()
@@ -30,15 +49,18 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         super.viewDidLoad()
         manager = CBCentralManager(delegate: self, queue: nil);
         customiseNavigationBar()
-        timer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(MainViewController.sendComd), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 0.25, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
     }
   //////////////////////////////////////////////////
     //Send ount command
-    func sendComd()
+ /*   func sendComd()
     {
         time+=1;
+        if (mainPeripheral != nil) {
+            sendCommand()
+        }
         lbltimer.text=String(time)
-    }
+    }*/
     ///////////////////////////////////////////////////
     func customiseNavigationBar () {
         
@@ -88,19 +110,23 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     }
     
     @IBAction func sendButtonPressed(_ sender: AnyObject) {
-        let helloWorld = "!00SQ1;5\r"
-        let dataToSend = helloWorld.data(using: String.Encoding.utf8)
-        
         if (mainPeripheral != nil) {
-     //       mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: CBCharacteristicWriteType.withoutResponse)
-            mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
-            
-        } else {
-            print("haven't discovered device yet")
+        sendCommand()
         }
-        
+            
        // mainPeripheral?.readValue(for: <#T##CBCharacteristic#>)
     }
+    ////////////////////////////////////////////////////
+    func sendCommand()
+    {
+        let Command = "!00SQ1;5\r"
+        let dataToSend = Command.data(using: String.Encoding.utf8)
+        
+        if (mainPeripheral != nil) {
+            mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
+        }
+    }
+    ////////////////////////////////////////////////////////////////////
     
     // MARK: - CBCentralManagerDelegate Methods    
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
@@ -120,18 +146,6 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         for service in peripheral.services! {
             
             print("Service found with UUID: " + service.uuid.uuidString)
-  /*
-            //device information service
-            if (service.uuid.uuidString == "180A") {
-                peripheral.discoverCharacteristics(nil, for: service)
-            }
-            
-            //GAP (Generic Access Profile) for Device Name
-            // This replaces the deprecated CBUUIDGenericAccessProfileString
-            if (service.uuid.uuidString == "1800") {
-                peripheral.discoverCharacteristics(nil, for: service)
-            }
-  */
             //Bluno Service
             if (service.uuid.uuidString == BLEService) {
                 peripheral.discoverCharacteristics(nil, for: service)
@@ -190,23 +204,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             //data recieved
             if(characteristic.value != nil)
             {
-                 stringValue = String(data: characteristic.value!, encoding: String.Encoding.utf8)!
-                /*
-                
-                 if ((parts[0].indexOf("SQ")>=0)||(parts[0].indexOf("RU")>=0)||(parts[0].indexOf("RT")>=0)||(parts[0].indexOf("RK")>=0)||(parts[0].indexOf("RV")>=0)||(parts[0].indexOf("RQ")>=0)||(parts[0].indexOf("RA")>=0)||(parts[0].indexOf("RL")>=0)||(parts[0].indexOf("RS")>=0))            //find if "SQ1;" exist, if yes, start to add to string.
-                 {
-                 mStrReceivedString="";
-                 rxState= Constants.RX_START;
-                 }
-                 if ((parts[0].indexOf("\r")>=0) ||(parts[0].indexOf("\n")>=0))              //find if end charactor exist in the string; if yes append the string and end
-                 {
-                 String[] parts1=parts[0].split(Character.toString((char)13));  //find '\r'
-                 rxState= Constants.RX_DONE;
-                 mStrReceivedString=mStrReceivedString.concat(parts1[0]);
-                 }
-                 else {
-                 mStrReceivedString=mStrReceivedString.concat(parts[0]);
-                 }                */
+                stringValue = String(data: characteristic.value!, encoding: String.Encoding.utf8)!
                 
                 if (stringValue.contains("SQ")) || (stringValue.contains("RU")) || (stringValue.contains("RT"))||(stringValue.contains("RK"))||(stringValue.contains("RV"))||(stringValue.contains("RQ") )||(stringValue.contains("SA"))||(stringValue.contains("RL"))||(stringValue.contains("RS"))
                 {
@@ -218,7 +216,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                     stringAll=stringAll+stringValue
                     rxState=GlobalConstants.RX_DONE
                     recievedMessageText.text = stringAll
-                    
+          //          ParseMessage(Message: stringAll)
                 }
                 else
                 {
@@ -238,5 +236,20 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             mainPeripheral?.discoverServices(nil)
         }
     }
+    ////////////////////////////////////////////////////////////////////////////////////////
+/*    func ParseMessage(Message:String)
+    {
+        var flow, press, extpres, temp, statusHex :String
+       //     flow = split(Message) { $0==" "}
+        var datamessage = Message.components(separatedBy: GlobalConstants.SQCOMMD)
+        var data=datamessage[1].components(separatedBy: ";")
+        temp=data[0]
+        press=data[1]
+        flow=data[2]
+        extpres = data[3]
+        statusHex = data[4]
+    
+    }*/
+    ////////////////////////////////////////////////////////////////////////////////////////
 }
 
