@@ -17,6 +17,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     var time=0
     var rxState = 0
     var stringAll=""
+    var mblreceivedSQ = true
     @IBOutlet weak var lbltimer: UILabel!
     
    
@@ -49,7 +50,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         super.viewDidLoad()
         manager = CBCentralManager(delegate: self, queue: nil);
         customiseNavigationBar()
-        timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 0.25, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
     }
   //////////////////////////////////////////////////
     //Send ount command
@@ -62,6 +63,39 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         lbltimer.text=String(time)
     }*/
     ///////////////////////////////////////////////////
+    
+    
+    @IBAction func StartTest(_ sender: UIButton)
+    {
+        let Command = "!00SM1;8\r"
+        let dataToSend = Command.data(using: String.Encoding.utf8)
+        
+        if (mainPeripheral != nil) {
+            mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
+        }
+    }
+    
+    @IBAction func TestTypeSwitch(_ sender: Any)
+    {
+        let Command = "!00SM1;6\r"
+        let dataToSend = Command.data(using: String.Encoding.utf8)
+        
+        if (mainPeripheral != nil) {
+            mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
+        }
+    }
+    
+    
+    @IBAction func StopTest(_ sender: UIButton)
+    {
+        let Command = "!00SM1;9\r"
+        let dataToSend = Command.data(using: String.Encoding.utf8)
+        
+        if (mainPeripheral != nil) {
+            mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
+        }    }
+    
+    
     func customiseNavigationBar () {
         
         self.navigationItem.rightBarButtonItem = nil
@@ -116,6 +150,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             
        // mainPeripheral?.readValue(for: <#T##CBCharacteristic#>)
     }
+    
     ////////////////////////////////////////////////////
     func sendCommand()
     {
@@ -123,7 +158,11 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         let dataToSend = Command.data(using: String.Encoding.utf8)
         
         if (mainPeripheral != nil) {
-            mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
+            if  (mblreceivedSQ == true)
+            {
+                mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
+                 mblreceivedSQ = false
+            }
         }
     }
     ////////////////////////////////////////////////////////////////////
@@ -243,21 +282,28 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
        //     flow = split(Message) { $0==" "}
         if Message.range(of: GlobalConstants.SQCOMMD) != nil
         {
-            var datamessage = Message.components(separatedBy: GlobalConstants.SQCOMMD)
-            var data=datamessage[1].components(separatedBy: ";")
-            temp=data[0]
-            press=data[1]
-            flow=data[2]
-            extpres = data[3]
-            statusHex = data[4]
-            let start = flow.index(flow.startIndex, offsetBy: 5)
+            do
+            {
+                var datamessage = Message.components(separatedBy: GlobalConstants.SQCOMMD)
+                var data=datamessage[1].components(separatedBy: ";")
+                temp=data[0]
+                press=data[1]
+                flow=data[2]
+                extpres = data[3]
+                statusHex = data[4]
+                let start = flow.index(flow.startIndex, offsetBy: 5)
+                
+                lblFlowReading.text = flow.substring(to: start)
+                lblIntPresReading.text=press.substring(to: start)
+                lblExtPresReading.text=extpres.substring(to: start)
+                lblTempReading. text=temp.substring(to: start)
+                lblStatus.text=statusHex
+            }
+            catch {print("Parse data error!")}
             
-            lblFlowReading.text = flow.substring(to: start)
-            lblIntPresReading.text=press.substring(to: start)
-            lblExtPresReading.text=extpres.substring(to: start)
-            lblTempReading.text=temp.substring(to: start)
-            
+            mblreceivedSQ = true
         }
+        
     }
     ////////////////////////////////////////////////////////////////////////////////////////
 
