@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreBluetooth
+import Charts
 import Foundation
 
 class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDelegate {
@@ -18,6 +19,11 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     var rxState = 0
     var stringAll=""
     var mblreceivedSQ = true
+    var dollars = [0]
+    var yVals : [ChartDataEntry] = [ChartDataEntry]()
+
+    var PastTime = NSDate().timeIntervalSince1970
+    
     @IBOutlet weak var lbltimer: UILabel!
     
    
@@ -46,11 +52,28 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     
     @IBOutlet weak var recievedMessageText: UILabel!
     
+    @IBOutlet weak var lineChartView: LineChartView!
     override func viewDidLoad() {
         super.viewDidLoad()
         manager = CBCentralManager(delegate: self, queue: nil);
         customiseNavigationBar()
-        timer = Timer.scheduledTimer(timeInterval: 0.25, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
+        //self.lineChartView.delegate = self
+ /*       self.lineChartView.chartDescription?.textColor = UIColor.white
+        self.lineChartView.gridBackgroundColor = UIColor.gray
+        
+        
+        lineChartView.setVisibleXRange(minXRange: 0, maxXRange: 100)
+        self.lineChartView.setVisibleXRangeMaximum(50)
+        let xAxis=lineChartView.xAxis
+        xAxis.axisMinimum=0
+        xAxis.axisMaximum=50
+ 
+        yVals.append(ChartDataEntry(x: Double(0), y: 0))
+*/
+        //setChartData(months:months)
+        //setChartData()
+        
+        timer = Timer.scheduledTimer(timeInterval: 1.5, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
     }
   //////////////////////////////////////////////////
     //Send ount command
@@ -73,6 +96,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         if (mainPeripheral != nil) {
             mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
         }
+     PastTime = NSDate().timeIntervalSince1970
     }
     
     @IBAction func TestTypeSwitch(_ sender: Any)
@@ -158,11 +182,11 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         let dataToSend = Command.data(using: String.Encoding.utf8)
         
         if (mainPeripheral != nil) {
-            if  (mblreceivedSQ == true)
-            {
+     //       if  (mblreceivedSQ == true)
+     //       {
                 mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
                  mblreceivedSQ = false
-            }
+     //       }
         }
     }
     ////////////////////////////////////////////////////////////////////
@@ -279,33 +303,141 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     func ParseMessage(Message:String)
     {
         var flow, press, extpres, temp, statusHex :String
-       //     flow = split(Message) { $0==" "}
+
         if Message.range(of: GlobalConstants.SQCOMMD) != nil
         {
-            do
-            {
-                var datamessage = Message.components(separatedBy: GlobalConstants.SQCOMMD)
-                var data=datamessage[1].components(separatedBy: ";")
-                temp=data[0]
-                press=data[1]
-                flow=data[2]
-                extpres = data[3]
-                statusHex = data[4]
-                let start = flow.index(flow.startIndex, offsetBy: 5)
-                
-                lblFlowReading.text = flow.substring(to: start)
-                lblIntPresReading.text=press.substring(to: start)
-                lblExtPresReading.text=extpres.substring(to: start)
-                lblTempReading. text=temp.substring(to: start)
-                lblStatus.text=statusHex
-            }
-            catch {print("Parse data error!")}
+            var datamessage = Message.components(separatedBy: GlobalConstants.SQCOMMD)
+            var data=datamessage[1].components(separatedBy: ";")
+            temp=data[0]
+            press=data[1]
+            flow=data[2]
+            extpres = data[3]
+            statusHex = data[4]
+            let start = flow.index(flow.startIndex, offsetBy: 5)
             
+            lblFlowReading.text = flow.substring(to: start)
+            lblIntPresReading.text=press.substring(to: start)
+            lblExtPresReading.text=extpres.substring(to: start)
+            lblTempReading.text=temp.substring(to: start)
+            lblStatus.text=statusHex
             mblreceivedSQ = true
+           // setChartData()
         }
-        
     }
     ////////////////////////////////////////////////////////////////////////////////////////
-
+    
+    @objc func setChartData()
+    {
+        
+        let timediff = NSDate().timeIntervalSince1970 - PastTime
+        yVals.append(ChartDataEntry(x: Double(timediff), y: 1))
+        let set2: LineChartDataSet = LineChartDataSet(values: yVals, label: "flow")
+        set2.axisDependency = .left // Line will correlate with left axis values
+        set2.setColor(UIColor.red.withAlphaComponent(0.5)) // our line's opacity is 50%
+        set2.setCircleColor(UIColor.red) // our circle will be dark red
+        set2.lineWidth = 2.0
+        set2.circleRadius = 1.0 // the radius of the node circle
+        set2.fillAlpha = 65 / 255.0
+        set2.fillColor = UIColor.red
+        set2.highlightColor = UIColor.white
+        set2.drawCircleHoleEnabled = true
+        //3 - create an array to store our LineChartDataSets
+        var dataSets2 : [LineChartDataSet] = [LineChartDataSet]()
+        dataSets2.append(set2)
+        //4 - pass our months in for our x-axis label value along with our dataSets
+        
+        let data2: LineChartData = LineChartData(dataSets: dataSets2)
+        data2.setValueTextColor(UIColor.white)
+        self.lineChartView.data = data2
+        //       self.lineChartView.setVisibleXRangeMaximum(50)
+        //        let xAxis=lineChartView.xAxis
+        //        xAxis.axisMinimum=0
+        //        xAxis.axisMaximum=50
+        // self.lineChartView.setVisibleXRange(minXRange: 0, maxXRange: 200)
+        //6 - add x-axis label
+    }
+/*
+    func setChartData(months : [String])
+    {
+        datalength=Double(months.count)
+        // 1 - creating an array of data entries
+        //    var yVals1 : [ChartDataEntry] = [ChartDataEntry]()
+        /*
+         for i in 0..<months.count {
+         yVals1.append(ChartDataEntry(x: Double(i), y: dollars[i]))
+         }
+         
+         // 2 - create a data set with our array
+         let set1: LineChartDataSet = LineChartDataSet(values: yVals1, label: "First Set")
+         
+         set1.axisDependency = .left // Line will correlate with left axis values
+         set1.setColor(UIColor.red.withAlphaComponent(0.5)) // our line's opacity is 50%
+         set1.setCircleColor(UIColor.red) // our circle will be dark red
+         set1.lineWidth = 2.0
+         set1.circleRadius = 2.0 // the radius of the node circle
+         set1.fillAlpha = 65 / 255.0
+         set1.fillColor = UIColor.red
+         set1.highlightColor = UIColor.white
+         set1.drawCircleHoleEnabled = true
+         //3 - create an array to store our LineChartDataSets
+         var dataSets : [LineChartDataSet] = [LineChartDataSet]()
+         dataSets.append(set1)
+         //4 - pass our months in for our x-axis label value along with our dataSets
+         //let data: LineChartData = LineChartData(dataSets: dataSets)
+         //       data.setValueTextColor(UIColor.white)
+         
+         ////5 - finally set our data
+         //self.lineChartView.data.
+         //        self.lineChartView.data = data
+         
+         */
+        
+        
+        //       for i in 0..<months.count {
+        //           yVals2.append(ChartDataEntry(x: Double(i), y: dollars1[i]))
+        //       }
+        let set2: LineChartDataSet = LineChartDataSet(values: yVals2, label: "Second Set")
+        set2.axisDependency = .left // Line will correlate with left axis values
+        set2.setColor(UIColor.red.withAlphaComponent(0.5)) // our line's opacity is 50%
+        set2.setCircleColor(UIColor.red) // our circle will be dark red
+        set2.lineWidth = 2.0
+        set2.circleRadius = 2.0 // the radius of the node circle
+        set2.fillAlpha = 65 / 255.0
+        set2.fillColor = UIColor.red
+        set2.highlightColor = UIColor.white
+        set2.drawCircleHoleEnabled = true
+        //3 - create an array to store our LineChartDataSets
+        var dataSets2 : [LineChartDataSet] = [LineChartDataSet]()
+        dataSets2.append(set2)
+        //4 - pass our months in for our x-axis label value along with our dataSets
+        
+        let data2: LineChartData = LineChartData(dataSets: dataSets2)
+        data2.setValueTextColor(UIColor.white)
+        //5 - finally set our data
+        //self.lineChartView.data.
+        self.lineChartView.data = data2
+        
+        
+        
+        
+        //6 - add x-axis label
+        let xaxis = self.lineChartView.xAxis
+        xaxis.valueFormatter = MyXAxisFormatter(months)
+    }*/
 }
+
+
+class MyXAxisFormatter: NSObject, IAxisValueFormatter {
+    
+    let months: [String]
+    
+    init(_ months: [String]) {
+        self.months = months
+    }
+    
+    func stringForValue(_ value: Double, axis: AxisBase?) -> String {
+        return months[Int(value)]
+    }
+}
+
 
