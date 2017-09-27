@@ -58,22 +58,23 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         manager = CBCentralManager(delegate: self, queue: nil);
         customiseNavigationBar()
         //self.lineChartView.delegate = self
- /*       self.lineChartView.chartDescription?.textColor = UIColor.white
+        self.lineChartView.chartDescription?.textColor = UIColor.white
         self.lineChartView.gridBackgroundColor = UIColor.gray
         
         
         lineChartView.setVisibleXRange(minXRange: 0, maxXRange: 100)
         self.lineChartView.setVisibleXRangeMaximum(50)
+        self.lineChartView.backgroundColor = UIColor.yellow
         let xAxis=lineChartView.xAxis
         xAxis.axisMinimum=0
         xAxis.axisMaximum=50
  
         yVals.append(ChartDataEntry(x: Double(0), y: 0))
-*/
+
         //setChartData(months:months)
-        //setChartData()
+        setChartData()
         
-        timer = Timer.scheduledTimer(timeInterval: 1.5, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
     }
   //////////////////////////////////////////////////
     //Send ount command
@@ -97,6 +98,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
         }
      PastTime = NSDate().timeIntervalSince1970
+        yVals=[ChartDataEntry]()
     }
     
     @IBAction func TestTypeSwitch(_ sender: Any)
@@ -182,11 +184,11 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         let dataToSend = Command.data(using: String.Encoding.utf8)
         
         if (mainPeripheral != nil) {
-     //       if  (mblreceivedSQ == true)
-     //       {
+            if  (mblreceivedSQ == true)
+            {
                 mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
                  mblreceivedSQ = false
-     //       }
+            }
         }
     }
     ////////////////////////////////////////////////////////////////////
@@ -321,16 +323,16 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             lblTempReading.text=temp.substring(to: start)
             lblStatus.text=statusHex
             mblreceivedSQ = true
-           // setChartData()
+            setChartData()
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////
     
     @objc func setChartData()
     {
-        
         let timediff = NSDate().timeIntervalSince1970 - PastTime
-        yVals.append(ChartDataEntry(x: Double(timediff), y: 1))
+        let tempflow = Double(lblFlowReading.text!)
+        yVals.append(ChartDataEntry(x: Double(timediff), y: tempflow!))
         let set2: LineChartDataSet = LineChartDataSet(values: yVals, label: "flow")
         set2.axisDependency = .left // Line will correlate with left axis values
         set2.setColor(UIColor.red.withAlphaComponent(0.5)) // our line's opacity is 50%
@@ -424,6 +426,20 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         let xaxis = self.lineChartView.xAxis
         xaxis.valueFormatter = MyXAxisFormatter(months)
     }*/
+    
+    func SetupChart(lineChartView: LineChartView)
+    {
+        lineChartView.setVisibleXRange(minXRange: 0, maxXRange: 100)
+        self.lineChartView.setVisibleXRangeMaximum(50)
+        let xAxis=lineChartView.xAxis
+        xAxis.axisMinimum=0
+        xAxis.axisMaximum=50
+      //  for i in 0..<months.count {
+            yVals.append(ChartDataEntry(x: 0, y: 0))
+      //  }
+        setChartData()
+    }
+    
 }
 
 

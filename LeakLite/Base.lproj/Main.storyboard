@@ -182,38 +182,37 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="v6u-WG-RpL" customClass="LineChartView" customModule="Charts">
-                                <rect key="frame" x="5" y="51" width="368" height="280"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Message Recieved" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dOR-2c-7DW">
-                                        <rect key="frame" x="0.0" y="200" width="375" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="..." textAlignment="center" lineBreakMode="characterWrap" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="RzW-4l-oYQ">
-                                        <rect key="frame" x="11" y="156" width="352" height="36"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pEs-yP-WO1">
-                                        <rect key="frame" x="119" y="221" width="136" height="30"/>
-                                        <state key="normal" title="Send &quot;Hello World!&quot;"/>
-                                        <connections>
-                                            <action selector="sendButtonPressed:" destination="9Pu-vz-22V" eventType="touchUpInside" id="ftO-bj-Pb4"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="v6u-WG-RpL" customClass="LineChartView" customModule="Charts">
+                                <rect key="frame" x="0.0" y="64" width="373" height="267"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstItem="RzW-4l-oYQ" firstAttribute="width" secondItem="v6u-WG-RpL" secondAttribute="width" constant="-23" id="QQi-bN-RJG"/>
-                                    <constraint firstItem="pEs-yP-WO1" firstAttribute="centerX" secondItem="v6u-WG-RpL" secondAttribute="centerX" id="cCt-hU-ck5"/>
-                                    <constraint firstItem="dOR-2c-7DW" firstAttribute="centerX" secondItem="v6u-WG-RpL" secondAttribute="centerX" id="hGM-Fs-th9"/>
-                                </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pEs-yP-WO1">
+                                <rect key="frame" x="104" y="532" width="136" height="30"/>
+                                <state key="normal" title="Send &quot;Hello World!&quot;"/>
+                                <connections>
+                                    <action selector="sendButtonPressed:" destination="9Pu-vz-22V" eventType="touchUpInside" id="ftO-bj-Pb4"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Message Recieved" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dOR-2c-7DW">
+                                <rect key="frame" x="16" y="570" width="375" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="..." textAlignment="center" lineBreakMode="characterWrap" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="RzW-4l-oYQ">
+                                <rect key="frame" x="7" y="505" width="352" height="36"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="pEs-yP-WO1" firstAttribute="centerX" secondItem="BcI-Uw-D2L" secondAttribute="centerX" constant="-15.5" id="Lhk-Mg-wqY"/>
+                            <constraint firstItem="dOR-2c-7DW" firstAttribute="centerX" secondItem="BcI-Uw-D2L" secondAttribute="centerX" constant="16" id="RBl-g5-4zZ"/>
+                            <constraint firstItem="RzW-4l-oYQ" firstAttribute="width" secondItem="BcI-Uw-D2L" secondAttribute="width" constant="-23" id="iFg-Jw-QRd"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="nko-pp-Oka"/>
                     <connections>

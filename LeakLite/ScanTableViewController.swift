@@ -17,7 +17,7 @@ import CoreBluetooth
     }
     func scanBLEDevice(){
         manager?.scanForPeripherals(withServices: nil, options: nil)
-        
+        //manager?.scanForPeripherals(withServices: [CBUUID(string: "49535343-FE7D-4AE5-8FA9-9FAFD205E455")], options: nil)
         DispatchQueue.main.asyncAfter(deadline: .now() + 60.0) {
             self.stopScanForBLEDevice()
         }
@@ -41,11 +41,16 @@ import CoreBluetooth
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "scanTableCell", for: indexPath)
-        let peripheral = peripherals[indexPath.row]
+       //let cell = tableView.dequeueReusableCell(withIdentifier: "scanTableCell", for: indexPath)
+       // if (peripherals[indexPath.row].name != nil)
+        //{
+            let cell = tableView.dequeueReusableCell(withIdentifier: "scanTableCell", for: indexPath)
+            let peripheral = peripherals[indexPath.row]
+            cell.textLabel?.text = peripheral.name
+            tableView.tableFooterView = UIView(frame: .zero)
+        //}
+            return cell
         
-        cell.textLabel?.text = peripheral.name
-        return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -64,19 +69,22 @@ import CoreBluetooth
         print(central.state)
     }
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        // pass reference to connected peripheral to parentview
-        parentView?.mainPeripheral = peripheral
-        peripheral.delegate = parentView
-        peripheral.discoverServices(nil)
-        // set manager's delegate view to parent so it can call relevant disconnect methods
-        manager?.delegate = parentView
-        parentView?.customiseNavigationBar()
-        
-        if let navController = self.navigationController{
-            navController.popViewController(animated: true)
+        if (peripheral.name != nil)
+        {
+            // pass reference to connected peripheral to parentview
+            parentView?.mainPeripheral = peripheral
+            peripheral.delegate = parentView
+            peripheral.discoverServices(nil)
+            // set manager's delegate view to parent so it can call relevant disconnect methods
+            manager?.delegate = parentView
+            parentView?.customiseNavigationBar()
             
+            if let navController = self.navigationController{
+                navController.popViewController(animated: true)
+                
+            }
+            print("Connected to "+peripheral.name!)
         }
-        print("Connected to "+peripheral.name!)
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
