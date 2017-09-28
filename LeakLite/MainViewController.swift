@@ -21,12 +21,18 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     var mblreceivedSQ = true
     var dollars = [0]
     var yVals : [ChartDataEntry] = [ChartDataEntry]()
+    var mblTesting = false                   //IGLS in testing status
+    var mblDeviceConnected = false
+    var mIntervalCount = 0
+    var mInterval = 1              //command send out interval
+    var mblSetupUpload = false
 
     var PastTime = NSDate().timeIntervalSince1970
     
     @IBOutlet weak var lbltimer: UILabel!
     
-   
+    @IBOutlet weak var lblRunningTime: UILabel!
+    
     @IBOutlet weak var lblFlowReading: UILabel!
     
     @IBOutlet weak var lblIntPresReading: UILabel!
@@ -67,26 +73,52 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         self.lineChartView.backgroundColor = UIColor.yellow
         let xAxis=lineChartView.xAxis
         xAxis.axisMinimum=0
-        xAxis.axisMaximum=50
+        xAxis.axisMaximum=10
  
         yVals.append(ChartDataEntry(x: Double(0), y: 0))
 
         //setChartData(months:months)
         setChartData()
         
-        timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
+        
     }
-  //////////////////////////////////////////////////
-    //Send ount command
- /*   func sendComd()
+    ////////////////////////////////////////////////////
+    func sendCommand()
     {
-        time+=1;
-        if (mainPeripheral != nil) {
-            sendCommand()
+        if (mainPeripheral != nil)
+        {
+            mInterval = 2
+            let Command = "!00SQ1;5\r"
+            let dataToSend = Command.data(using: String.Encoding.utf8)
+            if (mblDeviceConnected == true)
+            {
+                if  (mblreceivedSQ == true)
+                {
+                    do{
+                        if (mIntervalCount>mInterval)           //mInterval is used to adjust the how fast to send out the command
+                        {
+                            mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
+                            mblreceivedSQ = false
+                            mIntervalCount = 0
+                        }
+                        
+                    }
+                    catch
+                    {
+                        print("write command fail!")
+                    }
+                }
+                else if (mIntervalCount>(3*mInterval))              // if wait too long time, resend the command again
+                {
+                    mblreceivedSQ = true
+                }
+                mIntervalCount = mIntervalCount + 1
+                
+            }
         }
-        lbltimer.text=String(time)
-    }*/
-    ///////////////////////////////////////////////////
+    }
+    ////////////////////////////////////////////////////////////////////
     
     
     @IBAction func StartTest(_ sender: UIButton)
@@ -97,7 +129,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         if (mainPeripheral != nil) {
             mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
         }
-     PastTime = NSDate().timeIntervalSince1970
+        PastTime = NSDate().timeIntervalSince1970
         yVals=[ChartDataEntry]()
     }
     
@@ -119,7 +151,48 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         
         if (mainPeripheral != nil) {
             mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
-        }    }
+        }
+
+    }
+    
+    
+    @IBAction func CloseAPP(_ sender: UIButton) {
+        //let alert = UIAlertAction(title: "Close APP", style: .destructive, handler: <#T##((UIAlertAction) -> Void)?##((UIAlertAction) -> Void)?##(UIAlertAction) -> Void#>)
+/*        var refreshAlert = UIAlertView()
+        refreshAlert.title = "Refresh?"
+        refreshAlert.message = "All data will be lost."
+        refreshAlert.addButton(withTitle: "Cancel")
+        refreshAlert.addButton(withTitle: "OK")
+        refreshAlert.show()*/
+        var messagestr:String
+        if (mainPeripheral == nil)
+        {
+            messagestr = "Are you sure to exit LeakLite APP?"
+        }
+        else
+        {
+            messagestr = "Please disconnect bluetooth before close!"
+        }
+        let refreshAlert = UIAlertController(title: "LeakLite Close Confirmation!", message: messagestr, preferredStyle: UIAlertControllerStyle.alert)
+        
+        refreshAlert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
+            print("Handle Ok logic here")
+            //mainPeripheral.
+            if (self.mainPeripheral == nil)
+            {
+                exit(0)
+            }
+        }))
+        
+        refreshAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+            print("Handle Cancel Logic here")
+        }))
+        
+        present(refreshAlert, animated: true, completion: nil)
+        
+        
+        //exit(0)
+    }
     
     
     func customiseNavigationBar () {
@@ -130,11 +203,13 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         
         if (mainPeripheral == nil) {
             rightButton.setTitle("Scan", for: [])
+            mblDeviceConnected = false
             rightButton.setTitleColor(UIColor.blue, for: [])
             rightButton.frame = CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 60, height: 30))
             rightButton.addTarget(self, action: #selector(self.scanButtonPressed), for: .touchUpInside)
         } else {
             rightButton.setTitle("Disconnect", for: [])
+            
             rightButton.setTitleColor(UIColor.blue, for: [])
             rightButton.frame = CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 100, height: 30))
             rightButton.addTarget(self, action: #selector(self.disconnectButtonPressed), for: .touchUpInside)
@@ -177,21 +252,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
        // mainPeripheral?.readValue(for: <#T##CBCharacteristic#>)
     }
     
-    ////////////////////////////////////////////////////
-    func sendCommand()
-    {
-        let Command = "!00SQ1;5\r"
-        let dataToSend = Command.data(using: String.Encoding.utf8)
-        
-        if (mainPeripheral != nil) {
-            if  (mblreceivedSQ == true)
-            {
-                mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
-                 mblreceivedSQ = false
-            }
-        }
-    }
-    ////////////////////////////////////////////////////////////////////
+
     
     // MARK: - CBCentralManagerDelegate Methods    
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
@@ -238,6 +299,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                    // peripheral.readValue(for: characteristic)
                     print("Found a Device Manufacturer Name Characteristic")
                     mainCharacteristic=characteristic
+                    mblDeviceConnected = true
                 } else if (characteristic.uuid.uuidString == "2A23") {
                     //peripheral.readValue(for: characteristic)
                     print("Found System ID")
@@ -287,8 +349,6 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 {
                     stringAll=stringAll+stringValue
                 }
-                
-                
             }
         }
     }
@@ -304,8 +364,8 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     ////////////////////////////////////////////////////////////////////////////////////////
     func ParseMessage(Message:String)
     {
-        var flow, press, extpres, temp, statusHex :String
-
+        var flow, press, extpres, temp :String
+        //let CselfFun: SelfDefinedFunction? = nil
         if Message.range(of: GlobalConstants.SQCOMMD) != nil
         {
             var datamessage = Message.components(separatedBy: GlobalConstants.SQCOMMD)
@@ -314,16 +374,19 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             press=data[1]
             flow=data[2]
             extpres = data[3]
-            statusHex = data[4]
+            var statusHex = data[5].components(separatedBy: "\n")
             let start = flow.index(flow.startIndex, offsetBy: 5)
             
             lblFlowReading.text = flow.substring(to: start)
             lblIntPresReading.text=press.substring(to: start)
             lblExtPresReading.text=extpres.substring(to: start)
             lblTempReading.text=temp.substring(to: start)
-            lblStatus.text=statusHex
+            lblStatus.text = GetStatusStr(Hexstr: statusHex[0]).statusStr
+            mblTesting = GetStatusStr(Hexstr: statusHex[0]).bRunning
             mblreceivedSQ = true
-            setChartData()
+            if (mblTesting){
+                setChartData()
+            }
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -331,6 +394,11 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     @objc func setChartData()
     {
         let timediff = NSDate().timeIntervalSince1970 - PastTime
+        let timediffstr=String(timediff)
+        
+        let start = timediffstr.index(timediffstr.startIndex, offsetBy: 3)
+        
+        lblRunningTime.text = timediffstr.substring(to: start) + " (s)"              //display runing past time
         let tempflow = Double(lblFlowReading.text!)
         yVals.append(ChartDataEntry(x: Double(timediff), y: tempflow!))
         let set2: LineChartDataSet = LineChartDataSet(values: yVals, label: "flow")
@@ -455,5 +523,4 @@ class MyXAxisFormatter: NSObject, IAxisValueFormatter {
         return months[Int(value)]
     }
 }
-
 

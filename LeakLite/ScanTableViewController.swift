@@ -6,6 +6,7 @@ import CoreBluetooth
     var peripherals:[CBPeripheral] = []
     var manager: CBCentralManager? = nil
     var parentView:MainViewController? = nil
+    var Rowth = 0
     
     
     override func viewDidLoad() {
@@ -18,7 +19,7 @@ import CoreBluetooth
     func scanBLEDevice(){
         manager?.scanForPeripherals(withServices: nil, options: nil)
         //manager?.scanForPeripherals(withServices: [CBUUID(string: "49535343-FE7D-4AE5-8FA9-9FAFD205E455")], options: nil)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 60.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20.0) {
             self.stopScanForBLEDevice()
         }
         
@@ -42,14 +43,21 @@ import CoreBluetooth
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
        //let cell = tableView.dequeueReusableCell(withIdentifier: "scanTableCell", for: indexPath)
-       // if (peripherals[indexPath.row].name != nil)
-        //{
-            let cell = tableView.dequeueReusableCell(withIdentifier: "scanTableCell", for: indexPath)
-            let peripheral = peripherals[indexPath.row]
-            cell.textLabel?.text = peripheral.name
-            tableView.tableFooterView = UIView(frame: .zero)
-        //}
-            return cell
+  /*      if (peripherals[indexPath.row].name == nil)
+        {
+            tableView.deleteRows(at: [indexPath], with: UITableViewRowAnimation.automatic)
+        }
+        else{
+            
+        }*/
+   
+        let cell = tableView.dequeueReusableCell(withIdentifier: "scanTableCell", for: indexPath)
+        let peripheral = peripherals[indexPath.row]
+        cell.textLabel?.text = peripheral.name
+        tableView.tableFooterView = UIView(frame: .zero)
+
+        return cell
+
         
     }
     
@@ -57,6 +65,7 @@ import CoreBluetooth
         let peripheral = peripherals[indexPath.row]
         manager?.connect(peripheral, options: nil)
     }
+    
     
     //CBCentralMaganerDelegate code
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {

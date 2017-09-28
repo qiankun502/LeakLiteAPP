@@ -167,9 +167,12 @@
                                 <state key="normal" title="Close">
                                     <color key="titleShadowColor" red="0.72336632013320923" green="0.31867248137383575" blue="0.12991872887909173" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
+                                <connections>
+                                    <action selector="CloseAPP:" destination="9Pu-vz-22V" eventType="touchUpInside" id="K3g-er-m1X"/>
+                                </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="IDLE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D1m-Pr-cIS">
-                                <rect key="frame" x="12" y="549" width="361" height="27"/>
+                                <rect key="frame" x="12" y="549" width="187" height="27"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="26"/>
                                 <nil key="textColor"/>
@@ -187,8 +190,8 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pEs-yP-WO1">
-                                <rect key="frame" x="104" y="532" width="136" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pEs-yP-WO1">
+                                <rect key="frame" x="25" y="521" width="136" height="30"/>
                                 <state key="normal" title="Send &quot;Hello World!&quot;"/>
                                 <connections>
                                     <action selector="sendButtonPressed:" destination="9Pu-vz-22V" eventType="touchUpInside" id="ftO-bj-Pb4"/>
@@ -201,8 +204,15 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="..." textAlignment="center" lineBreakMode="characterWrap" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="RzW-4l-oYQ">
-                                <rect key="frame" x="7" y="505" width="352" height="36"/>
+                                <rect key="frame" x="7" y="584" width="342" height="36"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="0.0(s)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wW2-ww-m3H">
+                                <rect key="frame" x="219" y="485" width="89" height="27"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -225,6 +235,7 @@
                         <outlet property="lblIntPresReading" destination="WK4-y4-Pf2" id="9qG-DR-8KZ"/>
                         <outlet property="lblPresRange" destination="Hbe-lA-pck" id="JPk-2M-M5o"/>
                         <outlet property="lblPresUnit" destination="UXl-V6-Y4J" id="bCC-vo-cJb"/>
+                        <outlet property="lblRunningTime" destination="wW2-ww-m3H" id="LJ0-5G-fHe"/>
                         <outlet property="lblStatus" destination="D1m-Pr-cIS" id="qS2-kQ-r6M"/>
                         <outlet property="lblTempReading" destination="ZvN-1d-iHf" id="LM9-4O-0dw"/>
                         <outlet property="lblTemperatureUnit" destination="hja-SC-IdZ" id="kk8-wD-H8r"/>
