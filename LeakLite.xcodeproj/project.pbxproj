@@ -10,6 +10,7 @@
 		63A952C41F7AF1AC00FEF321 /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63A952C11F7AF19800FEF321 /* Charts.framework */; };
 		63A952C51F7AF1AC00FEF321 /* Charts.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 63A952C11F7AF19800FEF321 /* Charts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		63A952CA1F7C2CCF00FEF321 /* SelfDefinedFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A952C91F7C2CCF00FEF321 /* SelfDefinedFunction.swift */; };
+		63B774B61F7D3A2D00588A7C /* Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B774B51F7D3A2D00588A7C /* Setup.swift */; };
 		785098841D365ADD00976091 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785098831D365ADD00976091 /* AppDelegate.swift */; };
 		785098861D365ADD00976091 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785098851D365ADD00976091 /* MainViewController.swift */; };
 		785098891D365ADD00976091 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 785098871D365ADD00976091 /* Main.storyboard */; };
@@ -61,6 +62,7 @@
 /* Begin PBXFileReference section */
 		63A952BB1F7AF19700FEF321 /* Charts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Charts.xcodeproj; path = "Charts-master/Charts.xcodeproj"; sourceTree = "<group>"; };
 		63A952C91F7C2CCF00FEF321 /* SelfDefinedFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfDefinedFunction.swift; sourceTree = "<group>"; };
+		63B774B51F7D3A2D00588A7C /* Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setup.swift; sourceTree = "<group>"; };
 		785098801D365ADD00976091 /* LeakLite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LeakLite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		785098831D365ADD00976091 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		785098851D365ADD00976091 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 				7850988C1D365ADD00976091 /* LaunchScreen.storyboard */,
 				7850988F1D365ADD00976091 /* Info.plist */,
 				63A952C91F7C2CCF00FEF321 /* SelfDefinedFunction.swift */,
+				63B774B51F7D3A2D00588A7C /* Setup.swift */,
 			);
 			path = LeakLite;
 			sourceTree = "<group>";
@@ -237,6 +240,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				785098861D365ADD00976091 /* MainViewController.swift in Sources */,
+				63B774B61F7D3A2D00588A7C /* Setup.swift in Sources */,
 				785098841D365ADD00976091 /* AppDelegate.swift in Sources */,
 				785098961D365E8E00976091 /* ScanTableViewController.swift in Sources */,
 				63A952CA1F7C2CCF00FEF321 /* SelfDefinedFunction.swift in Sources */,

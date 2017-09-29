@@ -50,6 +50,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     
     @IBOutlet weak var lblStatus: UILabel!
  
+    @IBOutlet weak var BtnTT: UIButton!
     
     let BLEService = "49535343-FE7D-4AE5-8FA9-9FAFD205E455"//"DFB0"
     let BLECharacteristic = "49535343-8841-43F4-A8D4-ECBE34729BB3"//DFB1"
@@ -83,24 +84,41 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
         
     }
-    ////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     func sendCommand()
     {
         if (mainPeripheral != nil)
         {
-            mInterval = 2
-            let Command = "!00SQ1;5\r"
-            let dataToSend = Command.data(using: String.Encoding.utf8)
-            if (mblDeviceConnected == true)
+          //  mInterval = 2
+            var Command = "!00SQ1;5\r"
+            var dataToSend = Command.data(using: String.Encoding.utf8)
+            if (mblDeviceConnected == true)                             //Bluetooth Device is connected
             {
-                if  (mblreceivedSQ == true)
+                if  (mblreceivedSQ == true)                             //Last command response is received
                 {
                     do{
-                        if (mIntervalCount>mInterval)           //mInterval is used to adjust the how fast to send out the command
+                        if (mIntervalCount>mInterval)//mInterval is used to adjust the how fast to send out the command
                         {
-                            mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
-                            mblreceivedSQ = false
-                            mIntervalCount = 0
+                            if (mblSetupUpload == true)                     //communication to upload setup
+                            {
+                                mInterval=1
+                   //             mstartbutton disable
+                                if (mIntSetupUploadIndex != mInSetupReceiveIndex)
+                                {
+                                    mInSetupReceiveIndex = mIntSetupUploadIndex
+                                    Command = mCommand[mIntSetupUploadIndex]! + "\r"
+                                    dataToSend = Command.data(using: String.Encoding.utf8)
+                                    mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
+                                    print("send out \(Command)!")
+                                }
+                            }
+                            else
+                            {
+                                mInterval=2
+                                mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
+                                mblreceivedSQ = false
+                                mIntervalCount = 0
+                            }
                         }
                         
                     }
@@ -116,7 +134,17 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 mIntervalCount = mIntervalCount + 1
                 
             }
+   
         }
+        else
+        {
+            mblSetupUpload=true
+            mIntSetupUploadIndex=1
+            mInSetupReceiveIndex=0
+            mIntervalCount=0
+            mInterval=20 //wait sometime when connect is just established
+        }
+        SetupUpdate()
     }
     ////////////////////////////////////////////////////////////////////
     
@@ -155,15 +183,8 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
 
     }
     
-    
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @IBAction func CloseAPP(_ sender: UIButton) {
-        //let alert = UIAlertAction(title: "Close APP", style: .destructive, handler: <#T##((UIAlertAction) -> Void)?##((UIAlertAction) -> Void)?##(UIAlertAction) -> Void#>)
-/*        var refreshAlert = UIAlertView()
-        refreshAlert.title = "Refresh?"
-        refreshAlert.message = "All data will be lost."
-        refreshAlert.addButton(withTitle: "Cancel")
-        refreshAlert.addButton(withTitle: "OK")
-        refreshAlert.show()*/
         var messagestr:String
         if (mainPeripheral == nil)
         {
@@ -189,11 +210,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         }))
         
         present(refreshAlert, animated: true, completion: nil)
-        
-        
         //exit(0)
     }
-    
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     func customiseNavigationBar () {
         
@@ -300,10 +319,12 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                     print("Found a Device Manufacturer Name Characteristic")
                     mainCharacteristic=characteristic
                     mblDeviceConnected = true
-                } else if (characteristic.uuid.uuidString == "2A23") {
-                    //peripheral.readValue(for: characteristic)
-                    print("Found System ID")
+                    mblSetupUpload = true
                 }
+                //else if (characteristic.uuid.uuidString == "2A23") {
+                    //peripheral.readValue(for: characteristic)
+                //    print("Found System ID")
+               // }
             }
         }
     }
@@ -331,8 +352,8 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             //data recieved
             if(characteristic.value != nil)
             {
-                stringValue = String(data: characteristic.value!, encoding: String.Encoding.utf8)!
-                
+               stringValue = String(data: (characteristic.value)!, encoding: String.Encoding.utf8)!
+                //stringValue = String(describing: characteristic.value)
                 if (stringValue.contains("SQ")) || (stringValue.contains("RU")) || (stringValue.contains("RT"))||(stringValue.contains("RK"))||(stringValue.contains("RV"))||(stringValue.contains("RQ") )||(stringValue.contains("SA"))||(stringValue.contains("RL"))||(stringValue.contains("RS"))
                 {
                     stringAll=""
@@ -365,11 +386,13 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     func ParseMessage(Message:String)
     {
         var flow, press, extpres, temp :String
+        var datamessageArray, data, subdata : [String]
+        var paraNum = 0
         //let CselfFun: SelfDefinedFunction? = nil
-        if Message.range(of: GlobalConstants.SQCOMMD) != nil
+        if Message.range(of: GlobalConstants.SQCOMMD) != nil   //if includes !00SQ5
         {
-            var datamessage = Message.components(separatedBy: GlobalConstants.SQCOMMD)
-            var data=datamessage[1].components(separatedBy: ";")
+             datamessageArray = Message.components(separatedBy: GlobalConstants.SQCOMMD)
+             data=datamessageArray[1].components(separatedBy: ";")
             temp=data[0]
             press=data[1]
             flow=data[2]
@@ -388,6 +411,203 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 setChartData()
             }
         }
+        else if (Message.range(of: "RT") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RT")
+                data=datamessageArray[1].components(separatedBy: ";")
+                paraNum = STRtoINT(str: data[0])
+                subdata = data[1].components(separatedBy: "\n")
+                T[CurrentTT][paraNum] = 10//UInt(subdata[0])!
+                print("Parse T OK")
+            }
+            catch{
+                print("Parse T fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "RL") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RL")
+                data=datamessageArray[1].components(separatedBy: ";")
+                paraNum = STRtoINT(str: data[0])
+                subdata = data[1].components(separatedBy: "\n")
+                L[paraNum] = subdata[0]
+                print("Parse L OK")
+            }
+            catch{
+                print("Parse L fail")
+            }
+            if (paraNum<ValveSteps-1)
+            {
+                mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+            }
+            else
+            {
+                mIntSetupUploadIndex = mIntSetupUploadIndex + 15 - paraNum
+            }
+        }
+        else if (Message.range(of: "RK") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RK")
+                data=datamessageArray[1].components(separatedBy: ";")
+                paraNum = STRtoINT(str: data[0])
+                subdata = data[1].components(separatedBy: "\n")
+                K[CurrentTT][paraNum] = Double(subdata[0])!
+                print("Parse K Ok")
+            }
+            catch{
+                print("Parse K fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "RV") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RV")
+                data=datamessageArray[1].components(separatedBy: ";")
+                paraNum = STRtoINT(str: data[0])
+                subdata = data[1].components(separatedBy: "\n")
+                V[CurrentTT][paraNum] = Double(subdata[0])!
+                print("Parse V OK")
+            }
+            catch{
+                print("Parse V fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "RU2") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RU2;")
+                subdata = datamessageArray[1].components(separatedBy: "\n")
+               // ValveSteps=GetValveStepNumber(U2str: GetSubstring(FullStr: subdata[1], Start: 3, End: 4))
+                ValveSteps=GetValveStepNumber(U2str: subdata[0])
+                FourthAI=Check4thAI(U2str: subdata[0])
+                if (FourthAI == true)
+                {
+                    //set 4th AI visible
+                }
+                print("Parse U2 success")
+            }
+            catch{
+                print("Parse U2 fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "RU3") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RU3;")
+                mstrTemperatureUnit = GetTempUnit(U3str: datamessageArray[1])
+                print("Parse U3 Ok")
+            }
+            catch{
+                print("Parse U3 fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "RU4") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RU4;")
+                mstrPressureUnit = GetPressureUnit(U4str: datamessageArray[1])
+                print("Parse U4 OK")
+            }
+            catch{
+                print("Parse U4 fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "RU5") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RU5;")
+                mstrFlowUnit = GetFlowUnit(U5str: datamessageArray[1])
+                print("Parse U5 OK")
+            }
+            catch{
+                print("Parse U5 fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "SQ3") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "SQ3;")
+                CurrentTT = Int (GetSubstring(FullStr: datamessageArray[1], Start: 0, End: 1) )!
+                //mblSetupUpload = false
+                print("Parse SQ3 OK")
+               // mstrPressureUnit = GetPressureUnit(U4str: datamessageArray[1])
+            }
+            catch{
+                print("Parse SQ3 fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "RQ3") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RQ3;")
+                CurrentTT = Int (GetSubstring(FullStr: datamessageArray[1], Start: 0, End: 1) )!
+                mblSetupUpload = false
+                print("Parse RQ3 OK")
+            }
+            catch{
+                print("Parse RQ3 fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "RA4") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RA4;")
+                subdata = datamessageArray[1].components(separatedBy: "\n")
+                A4 = Double (subdata[0])!
+            }
+            catch{
+                print("Parse U4 fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "RS1") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RS1;")
+                subdata = datamessageArray[1].components(separatedBy: "\n")
+                mSerialNumber = subdata[0]
+                print("Parse S1 \(mSerialNumber)")
+            }
+            catch{
+                print("Parse S1 fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        else if (Message.range(of: "RS2") != nil)
+        {
+            do{
+                datamessageArray = Message.components(separatedBy: "RS2;")
+                subdata = datamessageArray[1].components(separatedBy: "\n")
+                mVerNumber = subdata[0]
+                let SN: Int = Int(mVerNumber)!
+                if (SN >= 20315)
+                {
+                    BtnTT.isHidden = false
+                }
+                else
+                {
+                    BtnTT.isHidden = true
+                }
+                print("Parse S2, \(mVerNumber)")
+            }
+            catch{
+                print("Parse S2 fail")
+            }
+            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+        }
+        
     }
     ////////////////////////////////////////////////////////////////////////////////////////
     
@@ -507,7 +727,17 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
       //  }
         setChartData()
     }
-    
+ /////////////////////////////////////////////////////////////////////////////////
+    //Update setup when TT changed
+    func SetupUpdate()
+    {
+        
+        if (PreviousTT != CurrentTT)
+        {
+            
+        }
+    }
+ /////////////////////////////////////////////////////////////////////////////////
 }
 
 

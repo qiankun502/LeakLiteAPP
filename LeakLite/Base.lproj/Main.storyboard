@@ -185,18 +185,6 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="v6u-WG-RpL" customClass="LineChartView" customModule="Charts">
-                                <rect key="frame" x="0.0" y="64" width="373" height="267"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </view>
-                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pEs-yP-WO1">
-                                <rect key="frame" x="25" y="521" width="136" height="30"/>
-                                <state key="normal" title="Send &quot;Hello World!&quot;"/>
-                                <connections>
-                                    <action selector="sendButtonPressed:" destination="9Pu-vz-22V" eventType="touchUpInside" id="ftO-bj-Pb4"/>
-                                </connections>
-                            </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Message Recieved" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dOR-2c-7DW">
                                 <rect key="frame" x="16" y="570" width="375" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -216,16 +204,21 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="v6u-WG-RpL" customClass="LineChartView" customModule="Charts">
+                                <rect key="frame" x="0.0" y="64" width="373" height="267"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="pEs-yP-WO1" firstAttribute="centerX" secondItem="BcI-Uw-D2L" secondAttribute="centerX" constant="-15.5" id="Lhk-Mg-wqY"/>
                             <constraint firstItem="dOR-2c-7DW" firstAttribute="centerX" secondItem="BcI-Uw-D2L" secondAttribute="centerX" constant="16" id="RBl-g5-4zZ"/>
                             <constraint firstItem="RzW-4l-oYQ" firstAttribute="width" secondItem="BcI-Uw-D2L" secondAttribute="width" constant="-23" id="iFg-Jw-QRd"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="nko-pp-Oka"/>
                     <connections>
+                        <outlet property="BtnTT" destination="vmD-K8-Lck" id="7dJ-1x-cZK"/>
                         <outlet property="lblExPresRange" destination="Jfd-eB-eUv" id="noq-p6-jhi"/>
                         <outlet property="lblExtPresReading" destination="W13-Ok-ryE" id="mWx-RN-xoY"/>
                         <outlet property="lblExtPresUnit" destination="zaw-aj-nXF" id="4Eh-Fe-VUB"/>
