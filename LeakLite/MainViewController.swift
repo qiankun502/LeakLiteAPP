@@ -13,6 +13,7 @@ import Foundation
 
 class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDelegate {
     var manager:CBCentralManager? = nil
+    @IBOutlet weak var leadingConstraint: NSLayoutConstraint!
     var mainPeripheral:CBPeripheral? = nil
     var mainCharacteristic:CBCharacteristic? = nil
     var time=0
@@ -29,6 +30,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
 
     var PastTime = NSDate().timeIntervalSince1970
     
+    var menuisOn = false
     @IBOutlet weak var lbltimer: UILabel!
     
     @IBOutlet weak var lblRunningTime: UILabel!
@@ -77,6 +79,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         xAxis.axisMaximum=10
  
         yVals.append(ChartDataEntry(x: Double(0), y: 0))
+         leadingConstraint.constant = -140
 
         //setChartData(months:months)
         setChartData()
@@ -84,10 +87,22 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
         
     }
+    
+    @IBAction func ShowMenu(_ sender: UIBarButtonItem) {
+        if (menuisOn == false){
+            leadingConstraint.constant=0
+            menuisOn = true
+        }
+        else{
+          leadingConstraint.constant = -140
+            menuisOn = false
+        }
+    }
     ////////////////////////////////////////////////////////////////////////////////////////////////
     func sendCommand()
     {
         if (mainPeripheral != nil)
+   
         {
           //  mInterval = 2
             var Command = "!00SQ1;5\r"
@@ -101,7 +116,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                         {
                             if (mblSetupUpload == true)                     //communication to upload setup
                             {
-                                mInterval=1
+                                mInterval=0
                    //             mstartbutton disable
                                 if (mIntSetupUploadIndex != mInSetupReceiveIndex)
                                 {
@@ -111,6 +126,14 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                                     mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
                                     print("send out \(Command)!")
                                 }
+                                let tempi = mIntSetupUploadIndex % 10
+                                var tempstr = ""
+                                for i in 0 ..< tempi
+                                {
+                                    tempstr = tempstr + "."
+                                }
+                                lblStatus.text = "Uploading " + tempstr
+                                lblStatus.backgroundColor = UIColor(white: 1, alpha: 0.5)
                             }
                             else
                             {
@@ -122,10 +145,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                         }
                         
                     }
-                    catch
-                    {
-                        print("write command fail!")
-                    }
+ 
                 }
                 else if (mIntervalCount>(3*mInterval))              // if wait too long time, resend the command again
                 {
@@ -142,7 +162,8 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             mIntSetupUploadIndex=1
             mInSetupReceiveIndex=0
             mIntervalCount=0
-            mInterval=20 //wait sometime when connect is just established
+            mInterval=10 //wait sometime when connect is just established
+            
         }
         SetupUpdate()
     }
@@ -421,9 +442,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 T[CurrentTT][paraNum] = 10//UInt(subdata[0])!
                 print("Parse T OK")
             }
-            catch{
-                print("Parse T fail")
-            }
+//            catch{
+//                print("Parse T fail")
+//            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "RL") != nil)
@@ -436,9 +457,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 L[paraNum] = subdata[0]
                 print("Parse L OK")
             }
-            catch{
-                print("Parse L fail")
-            }
+//            catch{
+//                print("Parse L fail")
+//            }
             if (paraNum<ValveSteps-1)
             {
                 mIntSetupUploadIndex = mIntSetupUploadIndex + 1
@@ -458,9 +479,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 K[CurrentTT][paraNum] = Double(subdata[0])!
                 print("Parse K Ok")
             }
-            catch{
-                print("Parse K fail")
-            }
+  //          catch{
+   //             print("Parse K fail")
+   //         }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "RV") != nil)
@@ -473,9 +494,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 V[CurrentTT][paraNum] = Double(subdata[0])!
                 print("Parse V OK")
             }
-            catch{
-                print("Parse V fail")
-            }
+ //           catch{
+//                print("Parse V fail")
+//            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "RU2") != nil)
@@ -492,9 +513,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 }
                 print("Parse U2 success")
             }
-            catch{
-                print("Parse U2 fail")
-            }
+//            catch{
+//                print("Parse U2 fail")
+//            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "RU3") != nil)
@@ -504,9 +525,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 mstrTemperatureUnit = GetTempUnit(U3str: datamessageArray[1])
                 print("Parse U3 Ok")
             }
-            catch{
-                print("Parse U3 fail")
-            }
+//            catch{
+//                print("Parse U3 fail")
+//            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "RU4") != nil)
@@ -516,9 +537,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 mstrPressureUnit = GetPressureUnit(U4str: datamessageArray[1])
                 print("Parse U4 OK")
             }
-            catch{
-                print("Parse U4 fail")
-            }
+//            catch{
+//                print("Parse U4 fail")
+//            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "RU5") != nil)
@@ -528,9 +549,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 mstrFlowUnit = GetFlowUnit(U5str: datamessageArray[1])
                 print("Parse U5 OK")
             }
-            catch{
-                print("Parse U5 fail")
-            }
+//            catch{
+//                print("Parse U5 fail")
+//            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "SQ3") != nil)
@@ -542,9 +563,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 print("Parse SQ3 OK")
                // mstrPressureUnit = GetPressureUnit(U4str: datamessageArray[1])
             }
-            catch{
-                print("Parse SQ3 fail")
-            }
+//            catch{
+//                print("Parse SQ3 fail")
+//            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "RQ3") != nil)
@@ -555,9 +576,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 mblSetupUpload = false
                 print("Parse RQ3 OK")
             }
-            catch{
-                print("Parse RQ3 fail")
-            }
+//            catch{
+//                print("Parse RQ3 fail")
+//            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "RA4") != nil)
@@ -567,9 +588,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 subdata = datamessageArray[1].components(separatedBy: "\n")
                 A4 = Double (subdata[0])!
             }
-            catch{
-                print("Parse U4 fail")
-            }
+//            catch{
+//                print("Parse U4 fail")
+//            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "RS1") != nil)
@@ -580,9 +601,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 mSerialNumber = subdata[0]
                 print("Parse S1 \(mSerialNumber)")
             }
-            catch{
-                print("Parse S1 fail")
-            }
+//            catch{
+//                print("Parse S1 fail")
+//            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
         else if (Message.range(of: "RS2") != nil)
@@ -734,7 +755,10 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         
         if (PreviousTT != CurrentTT)
         {
-            
+            PreviousTT = CurrentTT
+            lblFlowRange.text = "(Min: " + String(V[CurrentTT][1]) + "  Max: " + String(V[CurrentTT][2]) + ")"
+            lblPresRange.text = "(Min: " + String(K[CurrentTT][3]) + "  Max: " + String(K[CurrentTT][2]) + ")"
+            lblExPresRange.text = "(Min: " + String(K[CurrentTT][9]) + "  Max: " + String(K[CurrentTT][10]) + ")"
         }
     }
  /////////////////////////////////////////////////////////////////////////////////
