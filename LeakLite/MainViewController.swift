@@ -341,6 +341,8 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                     mainCharacteristic=characteristic
                     mblDeviceConnected = true
                     mblSetupUpload = true
+                    mIntSetupUploadIndex=1
+                    mInSetupReceiveIndex=0
                 }
                 //else if (characteristic.uuid.uuidString == "2A23") {
                     //peripheral.readValue(for: characteristic)

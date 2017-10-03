@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		639C8DEF1F832FC30064F5CD /* SetupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639C8DEE1F832FC30064F5CD /* SetupViewController.swift */; };
 		63A952C41F7AF1AC00FEF321 /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63A952C11F7AF19800FEF321 /* Charts.framework */; };
 		63A952C51F7AF1AC00FEF321 /* Charts.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 63A952C11F7AF19800FEF321 /* Charts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		63A952CA1F7C2CCF00FEF321 /* SelfDefinedFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A952C91F7C2CCF00FEF321 /* SelfDefinedFunction.swift */; };
@@ -60,6 +61,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		639C8DEE1F832FC30064F5CD /* SetupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupViewController.swift; sourceTree = "<group>"; };
 		63A952BB1F7AF19700FEF321 /* Charts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Charts.xcodeproj; path = "Charts-master/Charts.xcodeproj"; sourceTree = "<group>"; };
 		63A952C91F7C2CCF00FEF321 /* SelfDefinedFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfDefinedFunction.swift; sourceTree = "<group>"; };
 		63B774B51F7D3A2D00588A7C /* Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setup.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 				7850988F1D365ADD00976091 /* Info.plist */,
 				63A952C91F7C2CCF00FEF321 /* SelfDefinedFunction.swift */,
 				63B774B51F7D3A2D00588A7C /* Setup.swift */,
+				639C8DEE1F832FC30064F5CD /* SetupViewController.swift */,
 			);
 			path = LeakLite;
 			sourceTree = "<group>";
@@ -245,6 +248,7 @@
 				785098961D365E8E00976091 /* ScanTableViewController.swift in Sources */,
 				63A952CA1F7C2CCF00FEF321 /* SelfDefinedFunction.swift in Sources */,
 				BE0BBEF81F75AD5B00B50DD6 /* Constant.swift in Sources */,
+				639C8DEF1F832FC30064F5CD /* SetupViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
