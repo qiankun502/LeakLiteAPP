@@ -7,11 +7,31 @@
 //
 
 import UIKit
+class FruitTableViewCell: UITableViewCell {
+    
+    @IBOutlet weak var lblStepTime: UILabel!
+    @IBOutlet weak var lblStepName: UILabel!
+}
 
 class SetupViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITableViewDelegate, UITableViewDataSource {
 
+    @IBOutlet weak var lblFlowMin: UILabel!
+    @IBOutlet weak var lblFlowMax: UILabel!
+    @IBOutlet weak var lblPressureMin: UILabel!
+    @IBOutlet weak var lblPressureMax: UILabel!
+    @IBOutlet weak var lblPressureSet: UILabel!
+    @IBOutlet weak var lblExtPresMin: UILabel!
+    @IBOutlet weak var lblExtPresMax: UILabel!
+    @IBOutlet weak var lblExtPresSet: UILabel!
+    @IBOutlet weak var lblFlowUnit: UILabel!
+    @IBOutlet weak var lblPresUnit: UILabel!
+    @IBOutlet weak var lblExtPresUnit: UILabel!
+    
     @IBOutlet weak var tableView: UITableView!
+    
+    //@IBOutlet weak var tableViewTime: UITableView!
     private var data: [String] = []
+    private var dataTime: [String] = []
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return data.count
@@ -19,16 +39,42 @@ class SetupViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
 
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cellReuseIdentifier")! //1.
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cellReuseIdentified", for: indexPath) as! FruitTableViewCell
+       // let text = data[indexPath.row] //2.
         
-        let text = data[indexPath.row] //2.
-        
-        cell.textLabel?.text = text //3.
+       // cell.textLabel?.text = text //3.
 
      //   cell.textLabel?.textAlignment = .justified
-        return cell //4.
+     //   return cell //4.
+        
+      //  let cell = tableView.dequeueReusableCell(withIdentifier: "cellReuseIdentified", for: indexPath) as! FruitTableViewCell
+        
+        let text = data[indexPath.row]
+        let text2 = dataTime[indexPath.row]
+        cell.lblStepName?.text = text
+        cell.lblStepTime?.text = text2//UIImage(named: fruitName)
+         cell.lblStepTime?.textAlignment = .right
+        
+        return cell
     }
     
+ /*
+    func tableViewTime(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return data.count
+    }
+    
+    
+    func tableViewTime(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cellReuseIdentifierTime")! //1.
+        
+        let text = dataTime[indexPath.row] //2.
+        
+        cell.textLabel?.text = text //3.
+        
+        //   cell.textLabel?.textAlignment = .justified
+        return cell //4.
+    }
+    */
     // THE NUMBER OF COULUMNS OF DADTA
     var IntSelectTT = 0
     
@@ -92,9 +138,27 @@ class SetupViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     func UpdateSetup()
     {
         data.removeAll()
-        for i in 0..<ValveSteps
+        dataTime.removeAll()
+        data.append("No.      Name  ")
+        dataTime.append("Time(s)")
+        if ValveSteps > 2
         {
-            data.append("\(i+1)    " + L[i] + "        " + (String)(T[IntSelectTT][i]))
+            for i in 1...ValveSteps
+            {
+                data.append("\(i)      " + L[i]) //+ "        " + (String)(T[IntSelectTT][i]))
+                dataTime.append((String)(T[IntSelectTT][i-1]))
+            }
+            
+            lblFlowMin.text = String(V[IntSelectTT][1])
+            lblFlowMax.text = String(V[IntSelectTT][2])
+            lblPressureMin.text = String(KPAtoAny(inData: K[IntSelectTT][3], strUnit: mstrPressureUnit))
+            lblPressureMax.text = String(KPAtoAny(inData: K[IntSelectTT][2], strUnit: mstrPressureUnit))
+            lblExtPresMin.text = String(KPAtoAny(inData: K[IntSelectTT][9], strUnit: mstrPressureUnit))
+            lblExtPresMax.text = String(KPAtoAny(inData: K[IntSelectTT][10], strUnit: mstrPressureUnit))
+            lblPressureSet.text = String(KPAtoAny(inData: K[IntSelectTT][0], strUnit: mstrPressureUnit))
+            lblFlowUnit.text = mstrFlowUnit
+            lblPresUnit.text = mstrPressureUnit
+            lblExtPresUnit.text = mstrPressureUnit
         }
     }
 /*

@@ -3,6 +3,17 @@
    version = "1.0">
    <ContextStates>
       <ContextState
+         contextName = "SetupViewController.tableView(_:cellForRowAt:):SetupViewController.swift">
+      </ContextState>
+      <ContextState
+         contextName = "MainViewController.SetupChart(lineChartView:):MainViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "CurrentTT">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "MainViewController.setChartData():MainViewController.swift">
          <PersistentStrings>
             <PersistentString
@@ -33,10 +44,30 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "MainViewController.SetupUpdate():MainViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "FourthAI">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "MainViewController.sendCommand():MainViewController.swift">
          <PersistentStrings>
             <PersistentString
                value = "mIntervalCount">
+            </PersistentString>
+            <PersistentString
+               value = "paraNum">
+            </PersistentString>
+            <PersistentString
+               value = "mInterval">
+            </PersistentString>
+            <PersistentString
+               value = "mblDeviceConnected">
+            </PersistentString>
+            <PersistentString
+               value = "mIntSetupUploadIndex">
             </PersistentString>
             <PersistentString
                value = "mblreceivedSQ">
@@ -45,13 +76,7 @@
                value = "mblSetupUpload">
             </PersistentString>
             <PersistentString
-               value = "mIntSetupUploadIndex">
-            </PersistentString>
-            <PersistentString
-               value = "mInterval">
-            </PersistentString>
-            <PersistentString
-               value = "mblDeviceConnected">
+               value = "ValveSteps">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -70,10 +95,13 @@
          contextName = "MainViewController.ParseMessage(Message:):MainViewController.swift">
          <PersistentStrings>
             <PersistentString
-               value = "ValveSteps">
+               value = "lastparaNum">
             </PersistentString>
             <PersistentString
                value = "lblStatus.text">
+            </PersistentString>
+            <PersistentString
+               value = "ValveSteps">
             </PersistentString>
             <PersistentString
                value = "CurrentTT">

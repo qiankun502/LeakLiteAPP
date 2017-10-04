@@ -9,7 +9,18 @@
 import Foundation
 
 
-
+public func GetTotalTime(CurrentTT: Int, ValveSteps: Int) -> Double
+{
+    var TinSec: Double = 0.0
+    if (ValveSteps > 1)
+    {
+        for i in 1...ValveSteps
+        {
+            TinSec = TinSec + (Double(T[CurrentTT][i]))/100
+        }
+    }
+    return TinSec
+}
 
 public func STRtoINT(str: String) -> Int
 {

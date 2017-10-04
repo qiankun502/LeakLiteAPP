@@ -30,7 +30,7 @@
                                 </connections>
                             </button>
                             <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pgW-tP-xea">
-                                <rect key="frame" x="0.0" y="72" width="375" height="98"/>
+                                <rect key="frame" x="0.0" y="101" width="375" height="69"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                             </pickerView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Flow:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="x4e-4h-CMH">
@@ -159,27 +159,68 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="zaR-Ee-DF8" propertyAccessControl="all">
-                                <rect key="frame" x="16" y="351" width="333" height="255"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="xgi-qo-Tfw">
+                                <rect key="frame" x="16" y="324" width="333" height="267"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="sectionIndexBackgroundColor" red="0.88215976682552033" green="1" blue="0.10655681701311415" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cellReuseIdentifier" id="Mqa-oN-mzC" propertyAccessControl="all">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cellReuseIdentified" id="nnT-Qm-1nq" customClass="FruitTableViewCell" customModule="LeakLite" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="333" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Mqa-oN-mzC" id="CTT-8T-rrG" propertyAccessControl="all">
-                                            <rect key="frame" x="0.0" y="0.0" width="333" height="44"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="nnT-Qm-1nq" id="T2w-0z-Ex6" customClass="FruitTableViewCell" customModule="LeakLite" customModuleProvider="target">
+                                            <rect key="frame" x="0.0" y="0.0" width="333" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ezE-jD-6hd">
+                                                    <rect key="frame" x="8" y="11" width="184" height="21"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yHh-Co-VQU">
+                                                    <rect key="frame" x="220" y="11" width="99" height="21"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="lblStepName" destination="ezE-jD-6hd" id="F0j-ku-ChP"/>
+                                            <outlet property="lblStepTime" destination="yHh-Co-VQU" id="5SE-ms-NSn"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Test Type selection" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8U7-SP-rFR">
+                                <rect key="frame" x="0.0" y="64" width="375" height="39"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.65783379936631292" green="1" blue="0.1346244831452561" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                                <color key="shadowColor" red="0.72100647789884986" green="1" blue="0.17582453961430378" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <connections>
                         <outlet property="TTPicker" destination="pgW-tP-xea" id="TEy-Kt-SWq"/>
-                        <outlet property="tableView" destination="zaR-Ee-DF8" id="aRD-ar-lix"/>
+                        <outlet property="lblExtPresMax" destination="bvv-dy-mdg" id="pvT-4n-Nwb"/>
+                        <outlet property="lblExtPresMin" destination="z84-Lq-dhs" id="uYB-Sh-R62"/>
+                        <outlet property="lblExtPresSet" destination="jv1-JT-o5A" id="pPR-Hq-jDN"/>
+                        <outlet property="lblExtPresUnit" destination="17K-NH-awb" id="eUV-X5-q6r"/>
+                        <outlet property="lblFlowMax" destination="lhb-HW-731" id="umT-fj-1ce"/>
+                        <outlet property="lblFlowMin" destination="ZZ1-OH-PSC" id="KJs-O8-ZIg"/>
+                        <outlet property="lblFlowUnit" destination="SjJ-53-35f" id="4aA-fU-AED"/>
+                        <outlet property="lblPresUnit" destination="uYu-Uh-usK" id="aJB-7M-Wfp"/>
+                        <outlet property="lblPressureMax" destination="hFu-VP-m4T" id="Kfc-RR-SBI"/>
+                        <outlet property="lblPressureMin" destination="eD6-q2-Jiw" id="tYy-7A-Q1A"/>
+                        <outlet property="lblPressureSet" destination="wyK-Bg-6xC" id="ML6-h2-Aoc"/>
+                        <outlet property="tableView" destination="xgi-qo-Tfw" id="Sw2-Hp-qBI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Hx-y4-kEU" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -451,6 +492,7 @@
                     <connections>
                         <outlet property="BtnTT" destination="vmD-K8-Lck" id="7dJ-1x-cZK"/>
                         <outlet property="lblExPresRange" destination="Jfd-eB-eUv" id="noq-p6-jhi"/>
+                        <outlet property="lblExtPresCap" destination="U8a-fO-nXA" id="5IB-Fs-lI7"/>
                         <outlet property="lblExtPresReading" destination="W13-Ok-ryE" id="mWx-RN-xoY"/>
                         <outlet property="lblExtPresUnit" destination="zaw-aj-nXF" id="4Eh-Fe-VUB"/>
                         <outlet property="lblFlowRange" destination="oIz-Iz-bHz" id="ZuM-AJ-dMI"/>

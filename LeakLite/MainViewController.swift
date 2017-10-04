@@ -31,6 +31,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     var PastTime = NSDate().timeIntervalSince1970
     
     var menuisOn = false
+    var lastCmd = ""
+    var lastparaNum = 0
+    var mIntretrytimes = 0
     @IBOutlet weak var lbltimer: UILabel!
     
     @IBOutlet weak var lblRunningTime: UILabel!
@@ -49,6 +52,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     @IBOutlet weak var lblFlowRange: UILabel!
     @IBOutlet weak var lblPresRange: UILabel!
     @IBOutlet weak var lblExPresRange: UILabel!
+    @IBOutlet weak var lblExtPresCap: UILabel!
     
     @IBOutlet weak var lblStatus: UILabel!
  
@@ -62,6 +66,12 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     @IBOutlet weak var recievedMessageText: UILabel!
     
     @IBOutlet weak var lineChartView: LineChartView!
+    override func viewDidAppear(_ animated: Bool)
+    {
+        leadingConstraint.constant = -140
+        menuisOn = false
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         manager = CBCentralManager(delegate: self, queue: nil);
@@ -72,18 +82,19 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         
         
         lineChartView.setVisibleXRange(minXRange: 0, maxXRange: 100)
+
         self.lineChartView.setVisibleXRangeMaximum(50)
         self.lineChartView.backgroundColor = UIColor.yellow
         let xAxis=lineChartView.xAxis
         xAxis.axisMinimum=0
         xAxis.axisMaximum=10
- 
+        
         yVals.append(ChartDataEntry(x: Double(0), y: 0))
-         leadingConstraint.constant = -140
+        leadingConstraint.constant = -140
 
         //setChartData(months:months)
         setChartData()
-        
+       
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(MainViewController.sendCommand), userInfo: nil, repeats: true)
         
     }
@@ -101,8 +112,8 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     ////////////////////////////////////////////////////////////////////////////////////////////////
     func sendCommand()
     {
-        if (mainPeripheral != nil)
-   
+
+      if (mainPeripheral != nil)
         {
           //  mInterval = 2
             var Command = "!00SQ1;5\r"
@@ -118,21 +129,30 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                             {
                                 mInterval=0
                    //             mstartbutton disable
-                                if (mIntSetupUploadIndex != mInSetupReceiveIndex)
+                                if ((mIntSetupUploadIndex != mInSetupReceiveIndex) || (mIntretrytimes > 5))
                                 {
                                     mInSetupReceiveIndex = mIntSetupUploadIndex
                                     Command = mCommand[mIntSetupUploadIndex]! + "\r"
                                     dataToSend = Command.data(using: String.Encoding.utf8)
                                     mainPeripheral?.writeValue(dataToSend!, for: mainCharacteristic!, type: .withResponse)
-                                    print("send out \(Command)!")
+                                    print("send out \(Command)!" + String(mIntSetupUploadIndex))
+                                    mIntretrytimes = 0
                                 }
+                                mIntretrytimes = mIntretrytimes + 1
                                 let tempi = mIntSetupUploadIndex % 10
                                 var tempstr = ""
                                 for i in 0 ..< tempi
                                 {
                                     tempstr = tempstr + "."
                                 }
-                                lblStatus.text = "Uploading " + tempstr
+                                if mIntretrytimes > 20
+                                {
+                                    lblStatus.text = "Communication fail, please reconnect! "
+                                }
+                                else
+                                {
+                                    lblStatus.text = "Uploading " + tempstr
+                                }
                                 lblStatus.backgroundColor = UIColor(white: 1, alpha: 0.5)
                             }
                             else
@@ -163,7 +183,8 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             mInSetupReceiveIndex=0
             mIntervalCount=0
             mInterval=10 //wait sometime when connect is just established
-            
+            lastCmd = ""
+            lastparaNum = 0
         }
         SetupUpdate()
     }
@@ -440,14 +461,22 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 datamessageArray = Message.components(separatedBy: "RT")
                 data=datamessageArray[1].components(separatedBy: ";")
                 paraNum = STRtoINT(str: data[0])
+
                 subdata = data[1].components(separatedBy: "\n")
-                T[CurrentTT][paraNum] = 10//UInt(subdata[0])!
+                T[CurrentTT][paraNum] = Int(subdata[0])!
                 print("Parse T OK")
+                
             }
 //            catch{
 //                print("Parse T fail")
 //            }
-            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+            if ((paraNum != lastparaNum) || (lastCmd != "RT"))
+            {
+                mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+                lastparaNum = paraNum
+                lastCmd = "RT"
+            }
+            
         }
         else if (Message.range(of: "RL") != nil)
         {
@@ -458,17 +487,23 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 subdata = data[1].components(separatedBy: "\n")
                 L[paraNum] = subdata[0]
                 print("Parse L OK")
+                
             }
 //            catch{
 //                print("Parse L fail")
 //            }
-            if (paraNum<ValveSteps-1)
+            if ((paraNum != lastparaNum) || (lastCmd != "RL"))
             {
-                mIntSetupUploadIndex = mIntSetupUploadIndex + 1
-            }
-            else
-            {
-                mIntSetupUploadIndex = mIntSetupUploadIndex + 15 - paraNum
+                lastCmd = "RL"
+                lastparaNum = paraNum
+                if (paraNum<ValveSteps)
+                {
+                    mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+                }
+                else
+                {
+                    mIntSetupUploadIndex = mIntSetupUploadIndex + 15 - paraNum
+                }
             }
         }
         else if (Message.range(of: "RK") != nil)
@@ -479,12 +514,18 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 paraNum = STRtoINT(str: data[0])
                 subdata = data[1].components(separatedBy: "\n")
                 K[CurrentTT][paraNum] = Double(subdata[0])!
+                
                 print("Parse K Ok")
             }
   //          catch{
    //             print("Parse K fail")
    //         }
-            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+            if ((paraNum != lastparaNum) || (lastCmd != "RK"))
+            {
+                mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+                lastparaNum = paraNum
+                lastCmd = "RK"
+            }
         }
         else if (Message.range(of: "RV") != nil)
         {
@@ -494,14 +535,20 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 paraNum = STRtoINT(str: data[0])
                 subdata = data[1].components(separatedBy: "\n")
                 V[CurrentTT][paraNum] = Double(subdata[0])!
+                
                 print("Parse V OK")
             }
  //           catch{
 //                print("Parse V fail")
 //            }
-            mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+            if ((paraNum != lastparaNum) || (lastCmd != "RV"))
+            {
+                mIntSetupUploadIndex = mIntSetupUploadIndex + 1
+                lastparaNum = paraNum
+                lastCmd = "RV"
+            }
         }
-        else if (Message.range(of: "RU2") != nil)
+        else if ((Message.range(of: "RU2") != nil) && (lastCmd != "RU2"))
         {
             do{
                 datamessageArray = Message.components(separatedBy: "RU2;")
@@ -513,6 +560,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 {
                     //set 4th AI visible
                 }
+                lastCmd = "RU2"
                 print("Parse U2 success")
             }
 //            catch{
@@ -520,11 +568,12 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
 //            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
-        else if (Message.range(of: "RU3") != nil)
+        else if ((Message.range(of: "RU3") != nil) && (lastCmd != "RU3"))
         {
             do{
                 datamessageArray = Message.components(separatedBy: "RU3;")
                 mstrTemperatureUnit = GetTempUnit(U3str: datamessageArray[1])
+                lastCmd = "RU3"
                 print("Parse U3 Ok")
             }
 //            catch{
@@ -532,11 +581,12 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
 //            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
-        else if (Message.range(of: "RU4") != nil)
+        else if ((Message.range(of: "RU4") != nil) && (lastCmd != "RU4"))
         {
             do{
                 datamessageArray = Message.components(separatedBy: "RU4;")
                 mstrPressureUnit = GetPressureUnit(U4str: datamessageArray[1])
+                lastCmd = "RU4"
                 print("Parse U4 OK")
             }
 //            catch{
@@ -544,11 +594,12 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
 //            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
-        else if (Message.range(of: "RU5") != nil)
+        else if ((Message.range(of: "RU5") != nil) && (lastCmd != "RU5"))
         {
             do{
                 datamessageArray = Message.components(separatedBy: "RU5;")
                 mstrFlowUnit = GetFlowUnit(U5str: datamessageArray[1])
+                lastCmd = "RU5"
                 print("Parse U5 OK")
             }
 //            catch{
@@ -556,12 +607,13 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
 //            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
-        else if (Message.range(of: "SQ3") != nil)
+        else if ((Message.range(of: "SQ3") != nil) && (lastCmd != "SQ3"))
         {
             do{
                 datamessageArray = Message.components(separatedBy: "SQ3;")
                 CurrentTT = Int (GetSubstring(FullStr: datamessageArray[1], Start: 0, End: 1) )!
                 //mblSetupUpload = false
+                lastCmd = "SQ3"
                 print("Parse SQ3 OK")
                // mstrPressureUnit = GetPressureUnit(U4str: datamessageArray[1])
             }
@@ -570,12 +622,13 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
 //            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
-        else if (Message.range(of: "RQ3") != nil)
+        else if ((Message.range(of: "RQ3") != nil) && (lastCmd != "RQ3"))
         {
             do{
                 datamessageArray = Message.components(separatedBy: "RQ3;")
                 CurrentTT = Int (GetSubstring(FullStr: datamessageArray[1], Start: 0, End: 1) )!
                 mblSetupUpload = false
+                lastCmd = "RQ3"
                 print("Parse RQ3 OK")
             }
 //            catch{
@@ -583,24 +636,26 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
 //            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
-        else if (Message.range(of: "RA4") != nil)
+        else if ((Message.range(of: "RA4") != nil) && (lastCmd != "RA4"))
         {
             do{
                 datamessageArray = Message.components(separatedBy: "RA4;")
                 subdata = datamessageArray[1].components(separatedBy: "\n")
                 A4 = Double (subdata[0])!
+                lastCmd = "RA4"
             }
 //            catch{
 //                print("Parse U4 fail")
 //            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
-        else if (Message.range(of: "RS1") != nil)
+        else if ((Message.range(of: "RS1") != nil) && (lastCmd != "RS1"))
         {
             do{
                 datamessageArray = Message.components(separatedBy: "RS1;")
                 subdata = datamessageArray[1].components(separatedBy: "\n")
                 mSerialNumber = subdata[0]
+                lastCmd = "RS1"
                 print("Parse S1 \(mSerialNumber)")
             }
 //            catch{
@@ -608,7 +663,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
 //            }
             mIntSetupUploadIndex = mIntSetupUploadIndex + 1
         }
-        else if (Message.range(of: "RS2") != nil)
+        else if ((Message.range(of: "RS2") != nil) && (lastCmd != "RS2"))
         {
             do{
                 datamessageArray = Message.components(separatedBy: "RS2;")
@@ -623,6 +678,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 {
                     BtnTT.isHidden = true
                 }
+                lastCmd = "RS2"
                 print("Parse S2, \(mVerNumber)")
             }
             catch{
@@ -638,20 +694,22 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     {
         let timediff = NSDate().timeIntervalSince1970 - PastTime
         let timediffstr=String(timediff)
+        let tempflow = Double(lblFlowReading.text!)
         
         let start = timediffstr.index(timediffstr.startIndex, offsetBy: 3)
+        if (mblTesting){
+            lblRunningTime.text = timediffstr.substring(to: start) + " (s)"              //display runing past time
+            yVals.append(ChartDataEntry(x: Double(timediff), y: tempflow!))
+        }
         
-        lblRunningTime.text = timediffstr.substring(to: start) + " (s)"              //display runing past time
-        let tempflow = Double(lblFlowReading.text!)
-        yVals.append(ChartDataEntry(x: Double(timediff), y: tempflow!))
         let set2: LineChartDataSet = LineChartDataSet(values: yVals, label: "flow")
         set2.axisDependency = .left // Line will correlate with left axis values
-        set2.setColor(UIColor.red.withAlphaComponent(0.5)) // our line's opacity is 50%
-        set2.setCircleColor(UIColor.red) // our circle will be dark red
+        set2.setColor(UIColor.blue.withAlphaComponent(0.5)) // our line's opacity is 50%
+        set2.setCircleColor(UIColor.blue) // our circle will be dark red
         set2.lineWidth = 2.0
         set2.circleRadius = 1.0 // the radius of the node circle
         set2.fillAlpha = 65 / 255.0
-        set2.fillColor = UIColor.red
+        set2.fillColor = UIColor.blue
         set2.highlightColor = UIColor.white
         set2.drawCircleHoleEnabled = true
         //3 - create an array to store our LineChartDataSets
@@ -668,6 +726,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         //        xAxis.axisMaximum=50
         // self.lineChartView.setVisibleXRange(minXRange: 0, maxXRange: 200)
         //6 - add x-axis label
+        
     }
 /*
     func setChartData(months : [String])
@@ -737,17 +796,28 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         let xaxis = self.lineChartView.xAxis
         xaxis.valueFormatter = MyXAxisFormatter(months)
     }*/
-    
+/////////////////////////////////////////////////////////////////////////////////////////
     func SetupChart(lineChartView: LineChartView)
     {
         lineChartView.setVisibleXRange(minXRange: 0, maxXRange: 100)
         self.lineChartView.setVisibleXRangeMaximum(50)
         let xAxis=lineChartView.xAxis
         xAxis.axisMinimum=0
-        xAxis.axisMaximum=50
+        xAxis.axisMaximum=GetTotalTime(CurrentTT:CurrentTT,ValveSteps:ValveSteps)
+        if (V[CurrentTT][2] > V[CurrentTT][1])   //max range must larger than the min range
+        {
+        //    lineChartView.setVisibleYRange(minYRange: V[CurrentTT][1], maxYRange: V[CurrentTT][2], axis: .left)
+            lineChartView.leftAxis.axisMaximum = 1.5 * V[CurrentTT][2]
+            lineChartView.leftAxis.axisMinimum = V[CurrentTT][1] - 0.5 * (abs(V[CurrentTT][1]))
+            lineChartView.rightAxis.axisMaximum = 1.5 * V[CurrentTT][2]
+            lineChartView.rightAxis.axisMinimum = V[CurrentTT][1] - 0.5 * (abs(V[CurrentTT][1]))
+        }
+
+        
       //  for i in 0..<months.count {
             yVals.append(ChartDataEntry(x: 0, y: 0))
       //  }
+ 
         setChartData()
     }
  /////////////////////////////////////////////////////////////////////////////////
@@ -761,6 +831,15 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             lblFlowRange.text = "(Min: " + String(V[CurrentTT][1]) + "  Max: " + String(V[CurrentTT][2]) + ")"
             lblPresRange.text = "(Min: " + String(K[CurrentTT][3]) + "  Max: " + String(K[CurrentTT][2]) + ")"
             lblExPresRange.text = "(Min: " + String(K[CurrentTT][9]) + "  Max: " + String(K[CurrentTT][10]) + ")"
+
+            lblExtPresUnit.isHidden = !FourthAI
+            lblExPresRange.isHidden = !FourthAI
+            lblExtPresReading.isHidden = !FourthAI
+            lblExtPresCap.isHidden = !FourthAI
+            
+ 
+      
+            SetupChart(lineChartView:lineChartView)
         }
     }
  /////////////////////////////////////////////////////////////////////////////////
