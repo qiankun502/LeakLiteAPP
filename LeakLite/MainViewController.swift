@@ -34,6 +34,12 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     var lastCmd = ""
     var lastparaNum = 0
     var mIntretrytimes = 0
+    var mDblTotalTime:Double = 0.1
+    
+   
+    @IBOutlet weak var ScanBtn: UIButton!
+    @IBOutlet weak var cmdTT: UIButton!
+    @IBOutlet weak var cmdStart: UIButton!
     @IBOutlet weak var lbltimer: UILabel!
     
     @IBOutlet weak var lblRunningTime: UILabel!
@@ -80,6 +86,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         self.lineChartView.chartDescription?.textColor = UIColor.white
         self.lineChartView.gridBackgroundColor = UIColor.gray
         
+        LeakLiteDatabase.OpenDatabase()
         
         lineChartView.setVisibleXRange(minXRange: 0, maxXRange: 100)
 
@@ -99,6 +106,16 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         
     }
     
+    @IBAction func ScanBTL(_ sender: Any) {
+      if (mainPeripheral == nil)
+      {
+            scanButtonPressed()
+     }
+        else
+      {
+            disconnectButtonPressed()
+        }
+    }
     @IBAction func ShowMenu(_ sender: UIBarButtonItem) {
         if (menuisOn == false){
             leadingConstraint.constant=0
@@ -261,16 +278,17 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         self.navigationItem.rightBarButtonItem = nil
         
         let rightButton = UIButton()
-        
+        //rightButton.isEnabled = false
         if (mainPeripheral == nil) {
-            rightButton.setTitle("Scan", for: [])
+            rightButton.setTitle("Disconnected", for: [])
+            ScanBtn.setTitle("Scan", for: [])
             mblDeviceConnected = false
             rightButton.setTitleColor(UIColor.blue, for: [])
-            rightButton.frame = CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 60, height: 30))
+            rightButton.frame = CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 120, height: 30))
             rightButton.addTarget(self, action: #selector(self.scanButtonPressed), for: .touchUpInside)
         } else {
-            rightButton.setTitle("Disconnect", for: [])
-            
+            rightButton.setTitle("Connected", for: [])
+            ScanBtn.setTitle("Disconnect", for: [])
             rightButton.setTitleColor(UIColor.blue, for: [])
             rightButton.frame = CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 100, height: 30))
             rightButton.addTarget(self, action: #selector(self.disconnectButtonPressed), for: .touchUpInside)
@@ -278,6 +296,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         
         let rightBarButton = UIBarButtonItem()
         rightBarButton.customView = rightButton
+        rightBarButton.isEnabled = false
         self.navigationItem.rightBarButtonItem = rightBarButton
         
     }
@@ -449,6 +468,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             lblExtPresReading.text=extpres.substring(to: start)
             lblTempReading.text=temp.substring(to: start)
             lblStatus.text = GetStatusStr(Hexstr: statusHex[0]).statusStr
+            lblStatus.backgroundColor = SetStatusBackgroud(tmpstr: lblStatus.text!)
             mblTesting = GetStatusStr(Hexstr: statusHex[0]).bRunning
             mblreceivedSQ = true
             if (mblTesting){
@@ -702,30 +722,43 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             yVals.append(ChartDataEntry(x: Double(timediff), y: tempflow!))
         }
         
-        let set2: LineChartDataSet = LineChartDataSet(values: yVals, label: "flow")
+        let set2: LineChartDataSet = LineChartDataSet(values: yVals, label: ("flow (" + mstrFlowUnit + ")"))
         set2.axisDependency = .left // Line will correlate with left axis values
-        set2.setColor(UIColor.blue.withAlphaComponent(0.5)) // our line's opacity is 50%
+        //set2.setColor(UIColor.blue.withAlphaComponent(0.5)) // our line's opacity is 50%
         set2.setCircleColor(UIColor.blue) // our circle will be dark red
         set2.lineWidth = 2.0
         set2.circleRadius = 1.0 // the radius of the node circle
-        set2.fillAlpha = 65 / 255.0
+     //   set2.fillAlpha = 65 / 255.0
         set2.fillColor = UIColor.blue
-        set2.highlightColor = UIColor.white
+       // set2.highlightColor = UIColor.white
         set2.drawCircleHoleEnabled = true
         //3 - create an array to store our LineChartDataSets
         var dataSets2 : [LineChartDataSet] = [LineChartDataSet]()
+        
+        // 4- add limit line
+        var yValHilim : [ChartDataEntry] = [ChartDataEntry]()
+        yValHilim.append(ChartDataEntry(x: 0, y: (V[CurrentTT][2])))
+        yValHilim.append(ChartDataEntry(x: mDblTotalTime, y: (V[CurrentTT][2])))
+        let set3: LineChartDataSet = LineChartDataSet(values: yValHilim, label:"Hi limit")
+        set3.setColor(UIColor.red)
+        set3.circleRadius = 1
+        
+        var yValLowlim : [ChartDataEntry] = [ChartDataEntry]()
+        yValLowlim.append(ChartDataEntry(x: 0, y: (V[CurrentTT][1])))
+        yValLowlim.append(ChartDataEntry(x: mDblTotalTime, y: (V[CurrentTT][1])))
+        let set4: LineChartDataSet = LineChartDataSet(values: yValLowlim, label:"Low Limit")
+        set4.setColor(UIColor.green)
+        set4.circleRadius = 1
+        
         dataSets2.append(set2)
+        dataSets2.append(set3)
+        dataSets2.append(set4)
         //4 - pass our months in for our x-axis label value along with our dataSets
         
         let data2: LineChartData = LineChartData(dataSets: dataSets2)
-        data2.setValueTextColor(UIColor.white)
+        data2.setValueTextColor(UIColor.yellow.withAlphaComponent(0))
         self.lineChartView.data = data2
-        //       self.lineChartView.setVisibleXRangeMaximum(50)
-        //        let xAxis=lineChartView.xAxis
-        //        xAxis.axisMinimum=0
-        //        xAxis.axisMaximum=50
-        // self.lineChartView.setVisibleXRange(minXRange: 0, maxXRange: 200)
-        //6 - add x-axis label
+        
         
     }
 /*
@@ -803,7 +836,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         self.lineChartView.setVisibleXRangeMaximum(50)
         let xAxis=lineChartView.xAxis
         xAxis.axisMinimum=0
-        xAxis.axisMaximum=GetTotalTime(CurrentTT:CurrentTT,ValveSteps:ValveSteps)
+        xAxis.axisMaximum=mDblTotalTime
         if (V[CurrentTT][2] > V[CurrentTT][1])   //max range must larger than the min range
         {
         //    lineChartView.setVisibleYRange(minYRange: V[CurrentTT][1], maxYRange: V[CurrentTT][2], axis: .left)
@@ -824,7 +857,6 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     //Update setup when TT changed
     func SetupUpdate()
     {
-        
         if (PreviousTT != CurrentTT)
         {
             PreviousTT = CurrentTT
@@ -837,12 +869,56 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             lblExtPresReading.isHidden = !FourthAI
             lblExtPresCap.isHidden = !FourthAI
             
- 
-      
+            mDblTotalTime = GetTotalTime(CurrentTT: CurrentTT, ValveSteps: ValveSteps)
+            
             SetupChart(lineChartView:lineChartView)
+        }
+        
+        if mblSetupUpload == true
+        {
+            cmdStart.isEnabled = false
+            cmdTT.isEnabled = false
+        }
+        else
+        {
+            if mblTesting == true
+            {
+                cmdStart.isEnabled = false
+                cmdTT.isEnabled = false
+            }
+            else
+            {
+                cmdStart.isEnabled = true
+                cmdTT.isEnabled = true
+            }
         }
     }
  /////////////////////////////////////////////////////////////////////////////////
+    
+    func SetStatusBackgroud(tmpstr: String) -> UIColor
+    {
+        var color: UIColor
+        
+        if tmpstr == "Testing"
+        {
+            color = UIColor.cyan
+        //    lblStatus.backgroundColor = UIColor.cyan
+        }
+        else if tmpstr == "Idle"
+        {
+            //lblStatus.backgroundColor = UIColor.yellow
+            color = UIColor.yellow
+        }
+        else if tmpstr.range(of: "Pass") != nil
+        {
+            color = UIColor.green
+        }
+        else
+        {
+            color = UIColor.red
+        }
+        return color
+    }
 }
 
 

@@ -26,6 +26,7 @@ class SetupViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     @IBOutlet weak var lblFlowUnit: UILabel!
     @IBOutlet weak var lblPresUnit: UILabel!
     @IBOutlet weak var lblExtPresUnit: UILabel!
+    @IBOutlet weak var lblExtPresCap: UILabel!
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -99,9 +100,7 @@ class SetupViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     @IBOutlet weak var lblTest: UILabel!
     @IBOutlet weak var TTPicker: UIPickerView!
     
-    @IBAction func clicktest(_ sender: UIButton) {
-        lblTest.text = "clicked"
-    }
+   
     
     var pickTT: [String] = [String]()
     
@@ -112,13 +111,15 @@ class SetupViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         self.TTPicker.delegate = self
         self.TTPicker.dataSource = self
         pickTT = ["Test Type 1","Test Type 2","Test Type 3","Test Type 4"]
-   
- 
-        
-        
+      
         tableView.dataSource = self
         tableView.delegate = self
         // Do any additional setup after loading the view.
+            lblExtPresMax.isHidden = !FourthAI
+            lblExtPresMin.isHidden = !FourthAI
+            lblExtPresUnit.isHidden = !FourthAI
+            lblExtPresSet.isHidden = !FourthAI
+            lblExtPresCap.isHidden = !FourthAI
     }
 
     override func didReceiveMemoryWarning() {
@@ -187,4 +188,5 @@ class SetupViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     }
     */
 
+    
 }

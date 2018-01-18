@@ -1,0 +1,45 @@
+//
+//  sqlViewController.swift
+//  LeakLite
+//
+//  Created by macuser on 10/8/17.
+//  Copyright © 2017 Rick Smith. All rights reserved.
+//
+
+import UIKit
+import SQLite
+
+class sqlViewController: UIViewController {
+    var database: Connection!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        do {
+            let documentDirectory = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            let fileUrl = documentDirectory.appendingPathComponent("users").appendingPathExtension("sqlite3")
+            let database = try Connection(fileUrl.path)
+            self.database = database
+        } catch {
+            print(error)
+        }
+        // Do any additional setup after loading the view.
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
+
+    /*
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destinationViewController.
+        // Pass the selected object to the new view controller.
+    }
+    */
+
+}

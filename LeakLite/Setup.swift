@@ -30,6 +30,7 @@ var mdbl_Density:Double = 0.0
 var mdbl_Pres:Double = 0.0
 var FourthAI = false
 
+let LeakLiteDatabase = Database()
 
 
 
