@@ -35,7 +35,11 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     var lastparaNum = 0
     var mIntretrytimes = 0
     var mDblTotalTime:Double = 0.1
+    var mstrResult:String = ""
     
+    //var mCurrentdateTime:String = ""
+    
+    var mbNewRun = true
    
     @IBOutlet weak var ScanBtn: UIButton!
     @IBOutlet weak var cmdTT: UIButton!
@@ -67,6 +71,10 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     let BLEService = "49535343-FE7D-4AE5-8FA9-9FAFD205E455"//"DFB0"
     let BLECharacteristic = "49535343-8841-43F4-A8D4-ECBE34729BB3"//DFB1"
      let BLECharacteristicRec = "49535343-1E4D-4BD9-BA61-23C647249616"
+    
+
+    var signatureTime = "1970-01-01"
+    
      var timer = Timer()
     
     @IBOutlet weak var recievedMessageText: UILabel!
@@ -158,7 +166,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                                 mIntretrytimes = mIntretrytimes + 1
                                 let tempi = mIntSetupUploadIndex % 10
                                 var tempstr = ""
-                                for i in 0 ..< tempi
+                                for _ in 0 ..< tempi
                                 {
                                     tempstr = tempstr + "."
                                 }
@@ -292,6 +300,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             rightButton.setTitleColor(UIColor.blue, for: [])
             rightButton.frame = CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: 100, height: 30))
             rightButton.addTarget(self, action: #selector(self.disconnectButtonPressed), for: .touchUpInside)
+            mSensorName = (mainPeripheral?.name)!  //String (describing: mainPeripheral?.name)
         }
         
         let rightBarButton = UIBarButtonItem()
@@ -464,15 +473,35 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             let start = flow.index(flow.startIndex, offsetBy: 5)
             
             lblFlowReading.text = flow.substring(to: start)
-            lblIntPresReading.text=press.substring(to: start)
-            lblExtPresReading.text=extpres.substring(to: start)
+            lblIntPresReading.text = press.substring(to: start)
+            lblExtPresReading.text = extpres.substring(to: start)
             lblTempReading.text=temp.substring(to: start)
             lblStatus.text = GetStatusStr(Hexstr: statusHex[0]).statusStr
             lblStatus.backgroundColor = SetStatusBackgroud(tmpstr: lblStatus.text!)
             mblTesting = GetStatusStr(Hexstr: statusHex[0]).bRunning
+            mstrResult = statusHex[0]
             mblreceivedSQ = true
+            
+            let dateformatter = DateFormatter()
+       //     dateformatter.dateStyle = DateFormatter.Style.short
+        //    dateformatter.timeStyle = DateFormatter.Style.medium
+              dateformatter.dateFormat = "YYYY-MM-dd HH:mm"
+            let mCurrentdateTime = dateformatter.string(from: NSDate() as Date)
+            //mSensorName = "Demo"
             if (mblTesting){
                 setChartData()
+                
+                if (mbNewRun == true) {
+                    mbNewRun = false
+                    signatureTime = mCurrentdateTime
+                    
+                }
+            }
+            else {
+                if mbNewRun == false {
+                        LeakLiteDatabase.InsertNewRecord(result: lblStatus.text!, setupid: String(CurrentTT), flow: lblFlowReading.text!, pressure: lblIntPresReading.text!, externalpres: lblExtPresReading.text!, strtime: signatureTime, strresult: mstrResult, sensorname: mSensorName)
+                }
+                mbNewRun = true
             }
         }
         else if (Message.range(of: "RT") != nil)
@@ -716,7 +745,7 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         let timediffstr=String(timediff)
         let tempflow = Double(lblFlowReading.text!)
         
-        let start = timediffstr.index(timediffstr.startIndex, offsetBy: 3)
+        let start = timediffstr.index(timediffstr.startIndex, offsetBy: 5)
         if (mblTesting){
             lblRunningTime.text = timediffstr.substring(to: start) + " (s)"              //display runing past time
             yVals.append(ChartDataEntry(x: Double(timediff), y: tempflow!))
@@ -860,9 +889,9 @@ class MainViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         if (PreviousTT != CurrentTT)
         {
             PreviousTT = CurrentTT
-            lblFlowRange.text = "(Min: " + String(V[CurrentTT][1]) + "  Max: " + String(V[CurrentTT][2]) + ")"
-            lblPresRange.text = "(Min: " + String(K[CurrentTT][3]) + "  Max: " + String(K[CurrentTT][2]) + ")"
-            lblExPresRange.text = "(Min: " + String(K[CurrentTT][9]) + "  Max: " + String(K[CurrentTT][10]) + ")"
+            lblFlowRange.text = "(" + String(V[CurrentTT][1]) + "   " + String(V[CurrentTT][2]) + ")"
+            lblPresRange.text = "(" + String(K[CurrentTT][3]) + "   " + String(K[CurrentTT][2]) + ")"
+            lblExPresRange.text = "(" + String(K[CurrentTT][9]) + "   " + String(K[CurrentTT][10]) + ")"
 
             lblExtPresUnit.isHidden = !FourthAI
             lblExPresRange.isHidden = !FourthAI

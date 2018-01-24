@@ -19,7 +19,7 @@ class Database {
     let sPressure = Expression<String>("Pressure")
     let sExtPressure = Expression<String> ("ExtPres")
     let sTestTime = Expression<String> ("sTime")
-    let dTestTime = Expression<Double> ("dTime")
+    let sResult = Expression<String> ("sResult")
     let sSensorName = Expression <String>("SensorName")
  //   let id = Expression <Int> ("id")
 
@@ -28,7 +28,7 @@ class Database {
     func OpenDatabase() {
         do {
             let documentDirectory = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            let fileUrl = documentDirectory.appendingPathComponent("LeakResult").appendingPathExtension("sqlite3")
+            let fileUrl = documentDirectory.appendingPathComponent("LeakResult1").appendingPathExtension("sqlite3")
             let dbresult = try Connection(fileUrl.path)
             self.leaklitdatabase = dbresult
             print("Created")
@@ -45,7 +45,7 @@ class Database {
             table.column(self.sPressure)
             table.column(self.sExtPressure)
             table.column(self.sTestTime)
-            table.column(self.dTestTime)
+            table.column(self.sResult)
             table.column(self.sSensorName)
             
         }
@@ -93,11 +93,21 @@ class Database {
         
     }
 
+    
+    func DeleteData() {
+        let user = self.ResultTable.filter(self.sTestTime == "1970-01-01")
+        let deleteUser = user.delete()
+        do {
+            try self.leaklitdatabase.run(deleteUser)
+        } catch {
+            print(error)
+        }
+    }
 
-    func InsertNewRecord(result: String, setupid: String, flow: String, pressure:String,externalpres:String, strtime:String, dbltime:Double, sensorname:String) {
+    func InsertNewRecord(result: String, setupid: String, flow: String, pressure:String,externalpres:String, strtime:String, strresult:String, sensorname:String) {
         print("INSERT new record.")
 
-        let insertRecord = self.ResultTable.insert(self.sTestResult <- result, self.sSetupId <- setupid, self.sFinalFlow <- flow, self.sPressure <- pressure, self.sExtPressure <- externalpres, self.dTestTime <- dbltime, self.sSensorName <- sensorname )
+        let insertRecord = self.ResultTable.insert(self.sTestResult <- result, self.sSetupId <- setupid, self.sFinalFlow <- flow, self.sPressure <- pressure, self.sExtPressure <- externalpres, self.sResult <- strresult, self.sTestTime <- strtime, self.sSensorName <- sensorname )
         do {
             try self.leaklitdatabase.run(insertRecord)
             print("INSERTED Record")
@@ -107,25 +117,41 @@ class Database {
     }
     //   alert.addAction(action)
     //   present(alert, animated: true, co//mpletion: ni
-
-
-    func QueryRecord(startTime:Double, endtime: Double, setupid:String, sensorname:String ) ->AnySequence<Row>?{
-        var filterCondition = (dTestTime > startTime) && (dTestTime < endtime)
+    func RetreatSensorName() -> [String] {// ->AnySequence<Row>? {
+        let result = ResultTable.select(distinct: sSensorName)
+        var namelist = ["All Sensor"]//[String]()
         do {
-            if setupid == "" {
-                if sensorname == "" {
-                    filterCondition = (dTestTime > startTime) && (dTestTime < endtime)
+        let names = try leaklitdatabase.prepare(result.select(distinct: sSensorName))   //(distinct: mSensorName)
+        for name in names {
+            print ("name: \(name[self.sSensorName])")
+            namelist.append("\(name[self.sSensorName])")
+        }
+        //    data = Array(names)
+        return namelist
+        } catch {
+            print ("Can't list result")
+            return namelist
+        }
+    }
+
+    
+    func QueryRecord(startTime:String, endtime: String, setupid:String, sensorname:String ) ->AnySequence<Row>?{
+        var filterCondition = (sTestTime >= startTime) && (sTestTime <= endtime)
+        do {
+            if setupid == "All Type" {
+                if sensorname == "All Sensor" {
+                    filterCondition = (sTestTime >= startTime) && (sTestTime <= endtime)
                 }
                 else {
-                    filterCondition =  (dTestTime > startTime) && (dTestTime < endtime) && (sSensorName == sensorname)
+                    filterCondition =  (sTestTime >= startTime) && (sTestTime <= endtime) && (sSensorName == sensorname)
                 }
             }
             else {
-                if sensorname == "" {
-                    filterCondition =  (dTestTime>startTime) && (dTestTime<endtime) && (sSetupId == setupid)
+                if sensorname == "All Sensor" {
+                    filterCondition =  (sTestTime>=startTime) && (sTestTime<=endtime) && (sSetupId == setupid)
                 }
                 else {
-                    filterCondition =  (dTestTime>startTime) && (dTestTime<endtime) && (sSetupId == setupid) && (sSensorName == sensorname)
+                    filterCondition =  (sTestTime>=startTime) && (sTestTime<=endtime) && (sSetupId == setupid) && (sSensorName == sensorname)
                 }
             }
             let result = ResultTable.filter(filterCondition)
@@ -141,7 +167,7 @@ class Database {
     func listtestrecord() {
         print("LIST TAPPED")
   
-        
+   /*
         do {
       //      let users = try self.leaklitdatabase.prepare(self.ResultTable)
       //      for user in users {
@@ -153,7 +179,7 @@ class Database {
             }
         } catch {
             print(error)
-        }
+        } */
     }
 }
 /*

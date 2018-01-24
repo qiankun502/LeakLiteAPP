@@ -7,6 +7,7 @@ import CoreBluetooth
     var manager: CBCentralManager? = nil
     var parentView:MainViewController? = nil
     var Rowth = 0
+ //   var mstrSensorName = ""
     
     
     override func viewDidLoad() {
@@ -93,6 +94,7 @@ import CoreBluetooth
                 
             }
             print("Connected to "+peripheral.name!)
+   //         mstrSensorName = peripheral.name
         }
     }
     
